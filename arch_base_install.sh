@@ -154,61 +154,61 @@ arch-chroot /mnt /bin/zsh
 
 
 # Set timezone
-timedatectl set-timezone ${timezone}
-hwclock --systohc
+arch-chroot /mnt timedatectl set-timezone ${timezone}
+arch-chroot /mnt hwclock --systohc
 
 
 # Localization
-sed -i "s/#en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen
-sed -i "s/#ru_RU.UTF-8/ru_RU.UTF-8/" /etc/locale.gen
-sed -i "s/#kk_KZ.UTF-8/kk_KZ.UTF-8/" /etc/locale.gen
-locale-gen
-localectl set-locale "LANG=en_US.UTF-8"
-echo "FONT=${console_font}" > /etc/vconsole.conf
+arch-chroot /mnt sed -i "s/#en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen
+arch-chroot /mnt sed -i "s/#ru_RU.UTF-8/ru_RU.UTF-8/" /etc/locale.gen
+arch-chroot /mnt sed -i "s/#kk_KZ.UTF-8/kk_KZ.UTF-8/" /etc/locale.gen
+arch-chroot /mnt locale-gen
+arch-chroot /mnt localectl set-locale "LANG=en_US.UTF-8"
+arch-chroot /mnt echo "FONT=${console_font}" > /etc/vconsole.conf
 
 
 # Network configuration
-hostnamectl hostname ${hostname}
+arch-chroot /mnt hostnamectl hostname ${hostname}
 
 
 # Initramfs
-sed -i "s/MODULES=()/MODULES=(btrfs)/" /etc/mkinitcpio.conf
-sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /etc/mkinitcpio.conf
-sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
-mkinitcpio -p linux
+arch-chroot /mnt sed -i "s/MODULES=()/MODULES=(btrfs)/" /etc/mkinitcpio.conf
+arch-chroot /mnt sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /etc/mkinitcpio.conf
+arch-chroot /mnt sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
+arch-chroot /mnt mkinitcpio -p linux
 
 
 # User management
-useradd -m -G wheel,audio,video -s /bin/zsh ${username}
-echo -n ${user_passphrase} | passwd ${username}
-passwd --lock root
-echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
+arch-chroot /mnt useradd -m -G wheel,audio,video -s /bin/zsh ${username}
+arch-chroot /mnt echo -n ${user_passphrase} | passwd ${username}
+arch-chroot /mnt passwd --lock root
+arch-chroot /mnt echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
 
 
 # Boot loader
-cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
-cd grub-improved-luks2-git && makepkg -rsi --noconfirm
-cd ~ && rm -rf grub-improved-luks2-git
+arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
+arch-chroot /mnt cd grub-improved-luks2-git && makepkg -rsi --noconfirm
+arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
 
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
-DRIVE_UUID=$(blkid -o value -s UUID ${drive})
-ROOT_UUID=$(blkid -o value -s UUID ${root_partition})
+arch-chroot /mnt DRIVE_UUID=$(blkid -o value -s UUID ${drive})
+arch-chroot /mnt ROOT_UUID=$(blkid -o value -s UUID ${root_partition})
 
-sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /etc/default/grub
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /etc/default/grub
+arch-chroot /mnt sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /etc/default/grub
+arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /etc/default/grub
 
-grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 
 # Pacman configuration
-sed -i "s/#Color/Color/" /etc/pacman.conf
-sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
+arch-chroot /mnt sed -i "s/#Color/Color/" /etc/pacman.conf
+arch-chroot /mnt sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
 
 # Wi-Fi via NetworkManager
 #nmcli dev wifi connect ${wifi_SSID} password ${wifi_passphrase} # add 'hidden yes' for hidden networks
-systemctl enable NetworkManager
+arch-chroot /mnt systemctl enable NetworkManager
 
 
 # Reboot
