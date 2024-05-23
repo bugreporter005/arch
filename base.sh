@@ -13,7 +13,7 @@ wifi_interface="wlan0"
 wifi_SSID=""
 wifi_passphrase=""
 
-drive="/dev/vda" # run 'fdisk'
+drive="/dev/vda" # run 'lsblk'
 efi_partition="${drive}1"
 root_partition="${drive}2"
 
@@ -52,8 +52,8 @@ timedatectl set-ntp true
 
 # Verify the UEFI mode 
 if [ ! -d "/sys/firmware/efi/efivars" ]; then
-  echo "System is not booted in the UEFI mode"
-  exit 1
+    echo "System is not booted in the UEFI mode"
+    exit 1
 fi
 
 
