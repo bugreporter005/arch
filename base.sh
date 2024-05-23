@@ -131,6 +131,10 @@ fi
 pacman -Sy archlinux-keyring --noconfirm
 
 
+# Enable parralel downloads
+sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
+
+
 # Install base packages
 pacstrap -K /mnt \
     base base-devel \
