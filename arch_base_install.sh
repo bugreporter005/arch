@@ -186,6 +186,7 @@ arch-chroot /mnt echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${usernam
 
 
 # Boot loader
+arch-chroot /mnt echo -n ${user_passphrase} | su ${username}
 arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
 arch-chroot /mnt cd grub-improved-luks2-git && makepkg -rsi --noconfirm
 arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
