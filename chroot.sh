@@ -1,4 +1,4 @@
-source preinstall.sh
+source variables.sh
 
 # Set timezone
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
