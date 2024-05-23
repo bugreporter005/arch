@@ -47,7 +47,7 @@ fi
 
 
 # Update the system clock
-timedatectl
+timedatectl set-ntp true
 
 
 # Verify the UEFI mode 
