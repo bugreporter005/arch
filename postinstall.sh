@@ -5,7 +5,7 @@
 # Arch Linux Post-installation Script
 # ===============================================
 
-source bash.sh
+source preinstall.sh
 GPU_driver="" # nvidia or mesa
 
 
