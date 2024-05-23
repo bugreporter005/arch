@@ -174,7 +174,7 @@ arch-chroot /mnt hostnamectl hostname ${hostname}
 # Initramfs
 arch-chroot /mnt sed -i "s/MODULES=()/MODULES=(btrfs)/" /etc/mkinitcpio.conf
 arch-chroot /mnt sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /etc/mkinitcpio.conf
-arch-chroot /mnt sed -i "s/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
+arch-chroot /mnt sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -p linux
 
 
