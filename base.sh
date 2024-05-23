@@ -212,11 +212,6 @@ arch-chroot /mnt sed -i "s/#Color/Color/" /etc/pacman.conf
 arch-chroot /mnt sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
 
-# Wi-Fi via NetworkManager
-#nmcli dev wifi connect ${wifi_SSID} password ${wifi_passphrase} # add 'hidden yes' for hidden networks
-arch-chroot /mnt systemctl enable NetworkManager
-
-
 # Reboot
 exit
 cp base.sh post.sh /mnt/home/
