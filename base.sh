@@ -158,7 +158,7 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 
 # Set timezone
-arch-chroot /mnt timedatectl set-timezone ${timezone}
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 arch-chroot /mnt hwclock --systohc
 
 
@@ -167,19 +167,19 @@ arch-chroot /mnt sed -i "s/#en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen
 arch-chroot /mnt sed -i "s/#ru_RU.UTF-8/ru_RU.UTF-8/" /etc/locale.gen
 arch-chroot /mnt sed -i "s/#kk_KZ.UTF-8/kk_KZ.UTF-8/" /etc/locale.gen
 arch-chroot /mnt locale-gen
-arch-chroot /mnt localectl set-locale "LANG=en_US.UTF-8"
+arch-chroot /mnt echo "LANG=en_US.UTF-8" > /etc/locale.conf
 arch-chroot /mnt echo "FONT=${console_font}" > /etc/vconsole.conf
 
 
 # Network configuration
-arch-chroot /mnt hostnamectl hostname ${hostname}
+arch-chroot /mnt echo "${hostname}" > /etc/hostname
 
 
 # Initramfs
 arch-chroot /mnt sed -i "s/MODULES=()/MODULES=(btrfs)/" /etc/mkinitcpio.conf
 arch-chroot /mnt sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /etc/mkinitcpio.conf
 arch-chroot /mnt sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
-arch-chroot /mnt mkinitcpio -p linux
+arch-chroot /mnt mkinitcpio -P
 
 
 # User management
