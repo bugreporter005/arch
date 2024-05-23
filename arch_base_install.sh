@@ -13,7 +13,7 @@ wifi_interface="wlan0"
 wifi_SSID=""
 wifi_passphrase=""
 
-drive="" # run 'fdisk'
+drive="/dev/vda" # run 'fdisk'
 efi_partition="${drive}1"
 root_partition="${drive}2"
 
@@ -88,15 +88,15 @@ btrfs subvolume create /mnt/@swap
 
 # Mount the BTRFS subvolumes 
 umount /mnt
-mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper${luks_label} /mnt
+mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 mkdir -p /mnt/{boot,efi,home,swap,.snapshots,tmp,var/log,var/cache/pacman/pkg,var/lib/docker}
-mount -o subvol=@home /dev/mapper${luks_label} /mnt/home
-mount -o subvol=@tmp /dev/mapper${luks_label} /mnt/tmp
-mount -o subvol=@log /dev/mapper${luks_label} /mnt/var/log
-mount -o subvol=@pkg /dev/mapper${luks_label} /mnt/var/cache/pacman/pkg
-mount -o subvol=@docker /dev/mapper${luks_label} /mnt/var/lib/docker
-mount -o subvol=@snapshots dev/mapper${luks_label} /mnt/.snapshots
-mount -o subvol=@swap /dev/mapper${luks_label} /mnt/swap
+mount -o subvol=@home /dev/mapper/${luks_label} /mnt/home
+mount -o subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
+mount -o subvol=@log /dev/mapper/${luks_label} /mnt/var/log
+mount -o subvol=@pkg /dev/mapper/${luks_label} /mnt/var/cache/pacman/pkg
+mount -o subvol=@docker /dev/mapper/${luks_label} /mnt/var/lib/docker
+mount -o subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
+mount -o subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 
 # Format and mount the EFI partition
