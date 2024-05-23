@@ -215,6 +215,6 @@ arch-chroot /mnt systemctl enable NetworkManager
 
 # Reboot
 exit
-#cp arch_base_install.sh arch_post_install.sh /mnt/
+cp base.sh post.sh /mnt/home/
 #umount /mnt
 #reboot
