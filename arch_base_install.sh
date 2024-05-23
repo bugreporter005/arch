@@ -60,9 +60,9 @@ fi
 # Partition
 parted --script ${drive} \
        mklabel gpt \
-       mkpart EFI fat32 0% 512MiB \
+       mkpart EFI fat32 0% 513MiB \
        set 1 esp on \
-       mkpart ROOT btrfs 512MiB 100%
+       mkpart ROOT btrfs 513MiB 100%
 
 
 # Encryption
@@ -112,7 +112,7 @@ swapon /mnt/swap/swapfile
 
 
 # Set up mirrors
-reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+#reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
 # Detect CPU vendor
@@ -128,7 +128,7 @@ fi
 
 
 # Update keyrings to prevent packages failing to install
-pacman -S archlinux-keyring --noconfirm
+pacman -Sy archlinux-keyring --noconfirm
 
 
 # Install base packages
@@ -213,6 +213,6 @@ systemctl enable NetworkManager
 
 # Reboot
 exit
-cp arch_base_install.sh arch_post_install.sh /mnt/
-umount /mnt
-reboot
+#cp arch_base_install.sh arch_post_install.sh /mnt/
+#umount /mnt
+#reboot
