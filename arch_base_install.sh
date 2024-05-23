@@ -190,6 +190,7 @@ arch-chroot /mnt echo -n ${user_passphrase} | su ${username}
 arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
 arch-chroot /mnt cd grub-improved-luks2-git && makepkg -rsi --noconfirm
 arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
+arch-chroot /mnt exit
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
