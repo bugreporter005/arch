@@ -11,13 +11,13 @@ GPU_driver="" # nvidia or mesa
 
 # Wi-Fi via NetworkManager
 nmcli dev wifi connect ${wifi_SSID} password ${wifi_passphrase} # add 'hidden yes' for hidden networks
-systemctl enable NetworkManager --now
+echo -n ${user_passphrase} | sudo systemctl enable NetworkManager --now
 
 
 # AUR Helper
-echo -n ${user_passphrase} | su ${username}
 cd ~ && git clone https://aur.archlinux.org/paru-bin.git
-cd ~/paru-bin/ && makepkg -rsi --noconfirm
+cd ~/paru-bin/
+echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
 cd ~ && rm -Rf ~/paru-bin
 
 
@@ -48,8 +48,8 @@ echo -n ${user_passphrase} | sudo paru --noconfirm -S \
 # Video driver
 if ${GPU_driver} == "nvidia"; then
     echo -n ${user_passphrase} | sudo pacman --noconfirm -S nvidia-lts nvidia-settings nvidia-smi
-    echo " nvidia-drm.modeset=1" >> /boot/loader/entries/arch.conf
-    sudo sed -i "s/MODULES=(btrfs)/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/" /etc/mkinitcpio.conf
+    #echo " nvidia-drm.modeset=1" >> /boot/loader/entries/arch.conf
+    sudo sed -i "s/MODULES=(.*)/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/" /etc/mkinitcpio.conf
     sudo mkinitcpio -P
 else
     echo -n ${user_passphrase} | sudo pacman -S mesa
