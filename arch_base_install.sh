@@ -179,7 +179,7 @@ arch-chroot /mnt mkinitcpio -p linux
 
 
 # User management
-arch-chroot /mnt useradd -m -G wheel,audio,video -s /bin/zsh ${username}
+arch-chroot /mnt useradd -m -G wheel,libvert -s /bin/zsh ${username}
 arch-chroot /mnt echo -n ${user_passphrase} | passwd ${username}
 arch-chroot /mnt passwd --lock root
 arch-chroot /mnt echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
