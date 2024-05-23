@@ -106,13 +106,13 @@ mount ${efi_partition} /mnt/efi
 
 # Swap file (double of the size of memory)
 # TODO: Check if it works
-RAM=$(free -m | awk '/^Mem:/{print $2}')
-btrfs filesystem mkswapfile --size $((RAM * 2))m --uuid clear /mnt/swap/swapfile
-swapon /mnt/swap/swapfile
+#RAM=$(free -m | awk '/^Mem:/{print $2}')
+#btrfs filesystem mkswapfile --size $((RAM * 2))m --uuid clear /mnt/swap/swapfile
+#swapon /mnt/swap/swapfile
 
 
 # Set up mirrors
-#reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
 # Detect CPU vendor
