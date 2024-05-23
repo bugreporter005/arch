@@ -115,6 +115,15 @@ mount ${efi_partition} /mnt/efi
 reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 
+# Enable parralel downloads
+sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
+
+
+# Update keyrings to prevent packages failing to install
+pacman -Sy archlinux-keyring --noconfirm
+
+
+
 # Detect CPU vendor
 cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
 if [ "$cpu_vendor" == "AuthenticAMD" ]; then
@@ -125,15 +134,6 @@ else
   echo "Unsupported vendor $cpu_vendor"
   exit 1
 fi
-
-
-# Update keyrings to prevent packages failing to install
-pacman -Sy archlinux-keyring --noconfirm
-
-
-# Enable parralel downloads
-sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
-
 
 # Install base packages
 pacstrap -K /mnt \
@@ -192,7 +192,8 @@ arch-chroot /mnt echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${usernam
 # Boot loader
 arch-chroot /mnt echo -n ${user_passphrase} | su ${username}
 arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
-arch-chroot /mnt cd grub-improved-luks2-git && makepkg -rsi --noconfirm
+arch-chroot /mnt cd grub-improved-luks2-git
+arch-chroot /mn echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
 arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
 arch-chroot /mnt exit
 
