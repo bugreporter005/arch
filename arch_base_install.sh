@@ -150,7 +150,7 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 
 # Change root into the new system
-arch-chroot /mnt /bin/zsh
+arch-chroot /mnt
 
 
 # Set timezone
