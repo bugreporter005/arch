@@ -5,8 +5,7 @@
 # Arch Linux Post-installation Script
 # ===============================================
 
-source preinstall.sh
-GPU_driver="" # nvidia or mesa
+source variables.sh
 
 
 # Wi-Fi via NetworkManager
