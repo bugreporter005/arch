@@ -1,10 +1,6 @@
 #!/bin/bash
 
 
-# ===============================================
-# Arch Linux Post-installation Script
-# ===============================================
-
 source variables.sh
 
 
