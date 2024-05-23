@@ -1,9 +1,3 @@
-# -----------------------------------------------
-# Encrypted Arch Linux Installation Script
-# Last update in May 2024
-# https://wiki.archlinux.org/title/Installation_guide
-# -----------------------------------------------
-
 #!/bin/bash
 
 
