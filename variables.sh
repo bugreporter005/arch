@@ -16,4 +16,4 @@ timezone="" # run 'timedatectl list-timezones'
 username=""
 user_passphrase=""
 
-GPU_driver="" # 'nvidia' or 'mesa'
+GPU_driver="mesa" # 'nvidia' or 'mesa'
