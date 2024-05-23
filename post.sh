@@ -6,11 +6,12 @@
 # ===============================================
 
 
-source base_arch.sh
-GPU_driver="nvidia" # mesa
+source base.sh
+GPU_driver="" # nvidia or mesa
 
 
 # AUR Helper
+echo -n ${user_passphrase} | su ${username}
 cd ~ && git clone https://aur.archlinux.org/paru-bin.git
 cd ~/paru-bin/ && makepkg -rsi --noconfirm
 cd ~ && rm -Rf ~/paru-bin
