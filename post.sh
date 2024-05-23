@@ -5,9 +5,13 @@
 # Arch Linux Post-installation Script
 # ===============================================
 
-
-source base.sh
+source bash.sh
 GPU_driver="" # nvidia or mesa
+
+
+# Wi-Fi via NetworkManager
+nmcli dev wifi connect ${wifi_SSID} password ${wifi_passphrase} # add 'hidden yes' for hidden networks
+systemctl enable NetworkManager --now
 
 
 # AUR Helper
