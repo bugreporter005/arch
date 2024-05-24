@@ -57,6 +57,7 @@ btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@log
 btrfs subvolume create /mnt/@pkg
 btrfs subvolume create /mnt/@docker
+btrfs subvolume create /mnt/@vm
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@swap
 
@@ -70,6 +71,7 @@ mount -o subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o subvol=@log /dev/mapper/${luks_label} /mnt/var/log
 mount -o subvol=@pkg /dev/mapper/${luks_label} /mnt/var/cache/pacman/pkg
 mount -o subvol=@docker /dev/mapper/${luks_label} /mnt/var/lib/docker
+mount -o subvol=@vm /dev/mapper/${luks_label} /mnt/var/lib/libvirt
 mount -o subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
 mount -o subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
