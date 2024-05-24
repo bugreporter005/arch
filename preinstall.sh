@@ -102,7 +102,6 @@ sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman
 pacman -Sy archlinux-keyring --noconfirm
 
 
-
 # Detect CPU vendor
 cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
 if [ "$cpu_vendor" == "AuthenticAMD" ]; then
@@ -113,6 +112,7 @@ else
   echo "Unsupported vendor $cpu_vendor"
   exit 1
 fi
+
 
 # Install base packages
 pacstrap -K /mnt \
