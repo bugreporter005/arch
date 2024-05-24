@@ -36,7 +36,7 @@ echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
 echo -n ${user_passphrase} | su ${username}
 cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
 cd grub-improved-luks2-git
-arch-chroot /mn echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
+echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
 cd ~ && rm -rf grub-improved-luks2-git
 exit
 
@@ -52,6 +52,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 
 # Pacman configuration
+reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
