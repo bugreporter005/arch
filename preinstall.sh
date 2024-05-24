@@ -67,7 +67,7 @@ btrfs subvolume create /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir -p /mnt/{boot,efi,home,swap,.snapshots,tmp,var/log,var/cache/pacman/pkg,var/lib/docker}
+mkdir -p /mnt/{boot,efi,home,swap,.snapshots,tmp,var/log,var/cache/pacman/pkg,var/lib/docker,var/lib/libvirt}
 mount -o subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o subvol=@log /dev/mapper/${luks_label} /mnt/var/log
