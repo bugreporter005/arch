@@ -131,6 +131,5 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 
 # Change root into the new system
-cp *.sh /mnt/root/
-chmod +x /mnt/root/{variables.sh,preinstall.sh,chroot.sh,postinstall.sh}
+cp -a *.sh /mnt/root/
 arch-chroot /mnt /mnt/root/chroot.sh
