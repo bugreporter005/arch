@@ -101,7 +101,7 @@ btrfs filesystem mkswapfile --size ${swap_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Set up mirrors
-reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 # Enable parallel downloads in Pacman
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
@@ -187,7 +187,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
-reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /etc/pacman.conf
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
