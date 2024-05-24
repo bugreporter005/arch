@@ -185,7 +185,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name
 
 grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
-# Mirror set up and Pacman configuration
+# Mirror setup and Pacman configuration
 reflector --latest 20 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /mnt/etc/pacman.conf
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
