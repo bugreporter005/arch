@@ -95,8 +95,9 @@ mkfs.fat -F 32 -n EFI ${efi_partition}
 mount ${efi_partition} /mnt/efi
 
 # Create and enable a swap file that's double of the RAM size
-RAM=$(free -g | awk '/^Mem:/{print $2}')
-btrfs filesystem mkswapfile --size $((RAM * 2))G --uuid clear /mnt/swap/swapfile
+RAM_SIZE=$(free -m | awk '/^Mem:/{print $2}')
+SWAP_SIZE=$(( ((RAM_SIZE + 1023) / 1024) * 2 )) # convert to gigabytes and round up
+btrfs filesystem mkswapfile --size ${SWAP_SIZE}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Set up mirrors
