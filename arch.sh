@@ -48,7 +48,7 @@ btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@log
-btrfs subvolume create /mnt/@pkg
+btrfs subvolume create /mnt/@cache
 btrfs subvolume create /mnt/@docker
 btrfs subvolume create /mnt/@vm
 btrfs subvolume create /mnt/@snapshots
@@ -61,7 +61,7 @@ mkdir -p /mnt/{boot,efi,home,swap,.snapshots,tmp,var/log,var/cache/pacman/pkg,va
 mount -o subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o subvol=@log /dev/mapper/${luks_label} /mnt/var/log
-mount -o subvol=@pkg /dev/mapper/${luks_label} /mnt/var/cache/pacman/pkg
+mount -o subvol=@cache /dev/mapper/${luks_label} /mnt/var/cache
 mount -o subvol=@docker /dev/mapper/${luks_label} /mnt/var/lib/docker
 mount -o subvol=@vm /dev/mapper/${luks_label} /mnt/var/lib/libvirt
 mount -o subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
