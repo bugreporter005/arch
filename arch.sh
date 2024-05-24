@@ -94,16 +94,15 @@ mount -o noatime,compress=no,nodatacow,commit=120,subvol=@swap /dev/mapper/${luk
 mkfs.fat -F 32 -n EFI ${efi_partition}
 mount ${efi_partition} /mnt/efi
 
-# Swap file (double of the size of memory)
-# TODO: Check if it works
-#RAM=$(free -m | awk '/^Mem:/{print $2}')
-#btrfs filesystem mkswapfile --size $((RAM * 2))m --uuid clear /mnt/swap/swapfile
-#swapon /mnt/swap/swapfile
+# 2x RAM size swap file
+RAM=$(free -g | awk '/^Mem:/{print $2}')
+btrfs filesystem mkswapfile --size $((RAM * 2))G --uuid clear /mnt/swap/swapfile
+swapon /mnt/swap/swapfile
 
-# Set up mirrors
+# Set up mirrors for ArchISO
 reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
-# Enable parralel downloads
+# Enable parralel downloads for ArchISO
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
