@@ -94,15 +94,15 @@ mount -o noatime,compress=no,nodatacow,commit=120,subvol=@swap /dev/mapper/${luk
 mkfs.fat -F 32 -n EFI ${efi_partition}
 mount ${efi_partition} /mnt/efi
 
-# 2x RAM size swap file
+# Create and enable a swap file that's double of the RAM size
 RAM=$(free -g | awk '/^Mem:/{print $2}')
 btrfs filesystem mkswapfile --size $((RAM * 2))G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
-# Set up mirrors for ArchISO
+# Set up mirrors
 reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
-# Enable parralel downloads for ArchISO
+# Enable parallel downloads in Pacman
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
@@ -119,7 +119,7 @@ else
   exit 1
 fi
 
-# Install base packages
+# Install essential packages
 pacstrap -K /mnt \
     base base-devel \
     linux-lts linux-firmware \
