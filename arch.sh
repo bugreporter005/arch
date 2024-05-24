@@ -14,8 +14,8 @@ root_partition="${drive}2"
 luks_label="cryptroot"
 luks_passphrase=""
 
-hostname="archlinux"
-timezone="" # run 'timedatectl list-timezones'
+hostname="arch"
+
 username=""
 user_passphrase=""
 
@@ -141,8 +141,8 @@ genfstab -U /mnt > /mnt/etc/fstab
 # Change root into the new system
 arch-chroot /mnt /bin/zsh -e << EOF
 
-# Set timezone
-ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+# Set timezone based on IP address
+ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 hwclock --systohc
 
 # Localization
