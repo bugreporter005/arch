@@ -79,14 +79,14 @@ btrfs subvolume create /mnt/@swap
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 mkdir -p /mnt/{boot,efi,home,swap,.snapshots,tmp,var/log,var/cache/pacman/pkg,var/lib/docker,var/lib/libvirt}
-mount -o subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
-mount -o subvol=@log /dev/mapper/${luks_label} /mnt/var/log
-mount -o subvol=@cache /dev/mapper/${luks_label} /mnt/var/cache
-mount -o subvol=@docker /dev/mapper/${luks_label} /mnt/var/lib/docker
-mount -o subvol=@vm /dev/mapper/${luks_label} /mnt/var/lib/libvirt
-mount -o subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
-mount -o subvol=@swap /dev/mapper/${luks_label} /mnt/swap
+mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
+mount -o noatime,compress=zstd,commit=120,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
+mount -o noatime,compress=zstd,commit=120,subvol=@log /dev/mapper/${luks_label} /mnt/var/log
+mount -o noatime,compress=zstd,commit=120,subvol=@cache /dev/mapper/${luks_label} /mnt/var/cache
+mount -o noatime,compress=zstd,commit=120,subvol=@docker /dev/mapper/${luks_label} /mnt/var/lib/docker
+mount -o noatime,compress=zstd,commit=120,subvol=@vm /dev/mapper/${luks_label} /mnt/var/lib/libvirt
+mount -o noatime,compress=zstd,commit=120,subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
+mount -o noatime,compress=no,commit=120,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_partition}
@@ -129,7 +129,9 @@ pacstrap -K /mnt \
     plymouth \
     networkmanager \
     terminus-font \
-    zsh neovim git
+    zsh zsh-completions \
+    neovim \
+    git
 
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
@@ -182,7 +184,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# Pacman configuration
+# Mirror set up and Pacman configuration
 reflector --latest 20 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
 sed -i "s/#Color/Color/" /mnt/etc/pacman.conf
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
