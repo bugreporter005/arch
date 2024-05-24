@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+chmod +x *.sh
+
 source variables.sh
 
 # Set a bigger font
