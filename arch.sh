@@ -73,8 +73,8 @@ btrfs subvolume create /mnt/@cache
 btrfs subvolume create /mnt/@docker
 btrfs subvolume create /mnt/@vm
 btrfs subvolume create /mnt/@snapshots
-btrfs subvolume create /mnt/@swap
 btrfs subvolume create /mnt/@cryptkey
+btrfs subvolume create /mnt/@swap
 
 # Mount the BTRFS subvolumes 
 umount /mnt
