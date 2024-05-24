@@ -192,6 +192,7 @@ sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pa
 
 # Reboot
 exit
+#umount -a
 #reboot
 
 EOF
