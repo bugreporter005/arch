@@ -194,6 +194,7 @@ sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman
 # Reboot
 exit
 #umount -a
+#cryptsetup close ${luks_label}
 #reboot
 
 EOF
