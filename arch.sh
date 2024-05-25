@@ -176,12 +176,12 @@ passwd --lock root
 echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
 
 # Boot loader
-echo -n ${user_passphrase} | su ${username}
 cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
 cd grub-improved-luks2-git
+echo -n ${user_passphrase} | su ${username}
 echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
-cd ~ && rm -rf grub-improved-luks2-git
 exit
+cd ~ && rm -rf grub-improved-luks2-git
 
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
