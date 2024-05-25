@@ -4,7 +4,7 @@
 console_font="ter-v18n"
 
 wifi_interface="wlan0"
-wifi_SSID=""
+wifi_ssid=""
 wifi_passphrase=""
 
 drive="/dev/vda" # run 'lsblk'
@@ -19,7 +19,7 @@ hostname="arch"
 username=""
 user_passphrase=""
 
-GPU_driver="mesa" # 'nvidia' or 'mesa'
+gpu_driver="" # 'nvidia' or 'mesa'
 
 
 # Clean the TTY
@@ -33,7 +33,7 @@ rfkill unblock all
 
 # Internet connection
 if ! ping -c 2 archlinux.org > /dev/null; then
-    iwctl --passphrase ${wifi_passphrase} station ${wifi_interface} connect ${wifi_SSID} # use 'connect-hidden' for hidden networks
+    iwctl --passphrase ${wifi_passphrase} station ${wifi_interface} connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
     if ! ping -c 2 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
