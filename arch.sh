@@ -67,6 +67,7 @@ mount /dev/mapper/${luks_label} /mnt
 # Create BTRFS subvolumes
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@srv
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@log
 btrfs subvolume create /mnt/@cache
@@ -87,10 +88,11 @@ chattr +C /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,efi,home,tmp,swap,.snapshots,.cryptkey}
+mkdir /mnt/{boot,efi,home,srv,tmp,swap,.snapshots,.cryptkey}
 mkdir -p /mnt/var/{log,cache}
 mkdir -p /mnt/var/lib/{docker,flatpak,libvirt}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
+mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
 mount -o noatime,compress=zstd,commit=120,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@log /dev/mapper/${luks_label} /mnt/var/log
 mount -o noatime,compress=zstd,commit=120,subvol=@cache /dev/mapper/${luks_label} /mnt/var/cache
