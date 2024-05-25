@@ -77,6 +77,13 @@ btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@cryptkey
 btrfs subvolume create /mnt/@swap
 
+# Disable COW on some subvolumes
+chattr +C /mnt/@tmp
+chattr +C /mnt/@log
+chattr +C /mnt/@cache
+chattr +C /mnt/@cryptkey
+chattr +C /mnt/@swap
+
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
