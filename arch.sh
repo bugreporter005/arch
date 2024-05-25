@@ -98,9 +98,9 @@ mount -o noatime,compress=no,nodatacow,commit=120,subvol=@swap /dev/mapper/${luk
 mkfs.fat -F 32 -n EFI ${efi_partition}
 mount ${efi_partition} /mnt/efi
 
-# Create and enable a swap file that's double of the RAM size
+# Create and enable a swap file that matches the size of RAM
 RAM_size=$(free -m | awk '/^Mem:/{print $2}')
-swap_size=$(( ((RAM_size + 1023) / 1024) * 2 )) # convert to gigabytes and round up
+swap_size=$(( (RAM_size + 1023) / 1024 )) # convert to gigabytes and round up
 btrfs filesystem mkswapfile --size ${swap_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
