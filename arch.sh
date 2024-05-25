@@ -101,8 +101,8 @@ mount ${efi_partition} /mnt/efi
 # Create and activate a swap file based on RAM size
 ram_size=$(free -m | awk '/^Mem:/{print $2}')
 swap_size=$(( (ram_size + 1023) / 1024 )) # convert to gigabytes and round up
-if [ $swap_size -le 16 ]; then
-    swap_size=$((swap_size * 2)) # double if the size is less than or equal to 16 gigabytes
+if [ $swap_size -le 8 ]; then
+    swap_size=$((swap_size * 2)) # double if the size is less than or equal to 8 gigabytes
 fi
 btrfs filesystem mkswapfile --size ${swap_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
