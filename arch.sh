@@ -85,11 +85,11 @@ mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mn
 mkdir /mnt/{boot,efi,home,srv,tmp,var,swap,.snapshots,.cryptkey}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
-mount -o noatime,compress=no,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
+mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots dev/mapper/${luks_label} /mnt/.snapshots
-mount -o noatime,compress=zstd,commit=120,subvol=@cryptkey dev/mapper/${luks_label} /mnt/.cryptkey
-mount -o noatime,compress=no,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
+mount -o noatime,compress=no,nodatacow,subvol=@cryptkey dev/mapper/${luks_label} /mnt/.cryptkey
+mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_partition}
