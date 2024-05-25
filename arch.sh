@@ -99,8 +99,8 @@ mkfs.fat -F 32 -n EFI ${efi_partition}
 mount ${efi_partition} /mnt/efi
 
 # Create and activate a swap file based on RAM size
-RAM_size=$(free -m | awk '/^Mem:/{print $2}')
-swap_size=$(( (RAM_size + 1023) / 1024 )) # convert to gigabytes and round up
+ram_size=$(free -m | awk '/^Mem:/{print $2}')
+swap_size=$(( (ram_size + 1023) / 1024 )) # convert to gigabytes and round up
 if [ $swap_size -le 16 ]; then
     swap_size=$((swap_size * 2)) # double if the size is less than or equal to 16 gigabytes
 fi
