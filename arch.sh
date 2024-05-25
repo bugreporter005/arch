@@ -8,7 +8,7 @@ wifi_ssid=""
 wifi_passphrase=""
 
 drive="/dev/vda" # run 'lsblk'
-efi_partition="${drive}1"
+efi_partition="${drive}1" # 'p1' for NVME
 root_partition="${drive}2"
 
 luks_label="cryptroot"
