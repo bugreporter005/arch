@@ -74,7 +74,7 @@ btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@cryptkey
 btrfs subvolume create /mnt/@swap
 
-# Disable COW on certain subvolumes
+# Disable CoW on certain subvolumes
 chattr +C /mnt/@tmp
 chattr +C /mnt/@cryptkey
 chattr +C /mnt/@swap
