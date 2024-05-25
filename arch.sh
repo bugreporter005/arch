@@ -33,7 +33,9 @@ rfkill unblock all
 
 # Internet connection
 if ! ping -c 2 archlinux.org > /dev/null; then
-    iwctl --passphrase ${wifi_passphrase} station ${wifi_interface} connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
+    iwctl --passphrase ${wifi_passphrase} \
+          station ${wifi_interface} \
+          connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
     if ! ping -c 2 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
@@ -57,7 +59,14 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-echo -n ${luks_passphrase} | cryptsetup -q --type luks2 --key-size 512 --hash sha512 --sector-size 4096 --use-random --key-file - luksFormat ${root_part}
+echo -n ${luks_passphrase} | cryptsetup -q \
+                                        --type luks2 \
+                                        --key-size 512 \
+                                        --hash sha512 \
+                                        --sector-size 4096 \
+                                        --use-random \
+                                        --key-file - \
+                                        luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
