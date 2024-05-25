@@ -8,8 +8,8 @@ wifi_ssid=""
 wifi_passphrase=""
 
 drive="/dev/vda" # run 'lsblk'
-efi_partition="${drive}1" # 'p1' for NVME
-root_partition="${drive}2"
+efi_part="${drive}1" # 'p1' for NVME
+root_part="${drive}2"
 
 luks_label="cryptroot"
 luks_passphrase=""
@@ -57,8 +57,8 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-echo -n ${luks_passphrase} | cryptsetup -q --type luks2 --key-size 512 --hash sha512 --use-random --key-file - luksFormat ${root_partition}
-echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_partition} ${luks_label}
+echo -n ${luks_passphrase} | cryptsetup -q --type luks2 --key-size 512 --hash sha512 --use-random --key-file - luksFormat ${root_part}
+echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
 mkfs.btrfs -L ROOT /dev/mapper/${luks_label}
@@ -94,8 +94,8 @@ mount -o noatime,compress=no,nodatacow,subvol=@cryptkey dev/mapper/${luks_label}
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
-mkfs.fat -F 32 -n EFI ${efi_partition}
-mount ${efi_partition} /mnt/efi
+mkfs.fat -F 32 -n EFI ${efi_part}
+mount ${efi_part} /mnt/efi
 
 # Create and activate a swap file based on RAM size
 ram_size=$(free -m | awk '/^Mem:/{print $2}')
@@ -185,7 +185,7 @@ cd ~ && rm -rf grub-improved-luks2-git
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
-ROOT_UUID=$(blkid -o value -s UUID ${root_partition})
+ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
 sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /etc/default/grub
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /etc/default/grub
