@@ -120,8 +120,8 @@ if [ "$cpu_vendor" == "AuthenticAMD" ]; then
 elif [ "$cpu_vendor" == "GenuineIntel" ]; then
     microcode="intel-ucode"
 else
-  echo "Unsupported vendor $cpu_vendor"
-  exit 1
+    echo "Unsupported vendor $cpu_vendor"
+    exit 1
 fi
 
 # Install essential packages
