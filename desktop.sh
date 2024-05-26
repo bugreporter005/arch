@@ -119,7 +119,7 @@ swapon /mnt/swap/swapfile
 reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 # Enable parallel downloads in Pacman
-sed -i "/ParallelDownloads = 5/s/^#//" /etc/pacman.conf
+sed -i "/ParallelDownloads/s/^#//" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
@@ -207,7 +207,7 @@ grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
 reflector --latest 10 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
-sed -i "s/#Color/Color/" /mnt/etc/pacman.conf
+sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
 # Reboot
