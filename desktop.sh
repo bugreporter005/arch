@@ -181,8 +181,8 @@ sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf s
 arch-chroot /mnt mkinitcpio -P
 
 # User management
-arch-chroot /mnt useradd -m -G wheel,libvert -s /bin/zsh ${username}
-arch-chroot /mnt echo -n ${user_passphrase} | passwd ${username}
+arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
+arch-chroot /mnt echo -n ${user_passphrase} | passwd ${username} --stdin
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
