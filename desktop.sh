@@ -119,7 +119,7 @@ swapon /mnt/swap/swapfile
 reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 # Enable parallel downloads in Pacman
-sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
+sed -i "/ParallelDownloads = 5/s/^#//" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
@@ -165,9 +165,9 @@ arch-chroot /mnt /bin/zsh ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/tim
 arch-chroot /mnt /bin/zsh hwclock --systohc
 
 # Localization
-arch-chroot /mnt /bin/zsh sed -i "s/#en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen
-arch-chroot /mnt /bin/zsh sed -i "s/#ru_RU.UTF-8/ru_RU.UTF-8/" /etc/locale.gen
-arch-chroot /mnt /bin/zsh sed -i "s/#kk_KZ.UTF-8/kk_KZ.UTF-8/" /etc/locale.gen
+arch-chroot /mnt /bin/zsh sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt /bin/zsh sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt /bin/zsh sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
 arch-chroot /mnt /bin/zsh locale-gen
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
