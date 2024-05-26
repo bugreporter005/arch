@@ -103,9 +103,11 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# Format and mount the EFI partition
-mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/efi
+# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+chmod 700 /mnt/.cryptkey
+head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
+chmod 600 /mnt/.cryptkey/keyfile.bin
+cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
 
 # Create and activate a swap file based on RAM size
 ram_size=$(free -m | awk '/^Mem:/{print $2}')
@@ -115,6 +117,10 @@ if [ $swap_size -le 8 ]; then
 fi
 btrfs filesystem mkswapfile --size ${swap_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
+
+# Format and mount the EFI partition
+mkfs.fat -F 32 -n EFI ${efi_part}
+mount ${efi_part} /mnt/efi
 
 # Set up mirrors
 reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
