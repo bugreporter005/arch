@@ -200,8 +200,16 @@ arch-chroot /mnt /bin/zsh grub-install --target=x86_64-efi --efi-directory=/efi 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
+grub_options="
+rd.luks.name=${DRIVE_UUID}=${luks_label}
+rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue
+root=UUID=${ROOT_UUID}
+rootflags=subvol=/@ rw
+quiet splash
+loglevel=3 rd.udev.log_priority=3
+"
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
+sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/\".*\"/\$grub_options/' /mnt/etc/default/grub
 
 arch-chroot /mnt /bin/zsh grub-mkconfig -o /boot/grub/grub.cfg
 
