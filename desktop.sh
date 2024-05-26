@@ -36,6 +36,7 @@ if ! ping -c 2 archlinux.org > /dev/null; then
     iwctl --passphrase ${wifi_passphrase} \
           station ${wifi_interface} \
           connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
+    wifi="yes"
     if ! ping -c 2 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
@@ -219,8 +220,10 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
 
 # WiFi connection
-nmcli dev wifi connect ${wifi_ssid} \
-               password ${wifi_passphrase} # add 'hidden yes' for hidden networks
+if "$wifi" == "yes"; then
+    nmcli dev wifi connect ${wifi_ssid} \
+                   password ${wifi_passphrase} # add 'hidden yes' for hidden networks
+fi
 systemctl enable NetworkManager --now
 
 # Reboot
