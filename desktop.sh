@@ -157,17 +157,17 @@ genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 # Change root into the new system
-#arch-chroot /mnt /bin/zsh -e << EOF
+#arch-chroot /mnt -e << EOF
 
 # Set timezone based on IP address
-arch-chroot /mnt /bin/zsh ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
-arch-chroot /mnt /bin/zsh hwclock --systohc
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
+arch-chroot /mnt hwclock --systohc
 
 # Localization
-arch-chroot /mnt /bin/zsh sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
-arch-chroot /mnt /bin/zsh sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
-arch-chroot /mnt /bin/zsh sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
-arch-chroot /mnt /bin/zsh locale-gen
+arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt locale-gen
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
@@ -178,23 +178,23 @@ echo "${hostname}" > /mnt/etc/hostname
 sed -i "s/MODULES=()/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
-arch-chroot /mnt /bin/zsh mkinitcpio -P
+arch-chroot /mnt mkinitcpio -P
 
 # User management
-arch-chroot /mnt /bin/zsh useradd -m -G wheel,libvert -s /bin/zsh ${username}
-arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | passwd ${username}
-arch-chroot /mnt /bin/zsh passwd --delete root && passwd --lock root # disable the root user
+arch-chroot /mnt useradd -m -G wheel,libvert -s /bin/zsh ${username}
+arch-chroot /mnt echo -n ${user_passphrase} | passwd ${username}
+arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Boot loader
-arch-chroot /mnt /bin/zsh cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
-arch-chroot /mnt /bin/zsh cd grub-improved-luks2-git
-arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | su ${username}
-arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
-arch-chroot /mnt /bin/zsh exit
-arch-chroot /mnt /bin/zsh cd ~ && rm -rf grub-improved-luks2-git
+arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
+arch-chroot /mnt cd grub-improved-luks2-git
+arch-chroot /mnt echo -n ${user_passphrase} | su ${username}
+arch-chroot /mnt echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
+arch-chroot /mnt exit
+arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
 
-arch-chroot /mnt /bin/zsh grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
@@ -212,7 +212,7 @@ boot_options="${boot_options//$'\n'/ }" # remove newline characters
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/\".*\"/\$boot_options/' /mnt/etc/default/grub
 
-arch-chroot /mnt /bin/zsh grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
 reflector --latest 10 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
