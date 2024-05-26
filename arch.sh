@@ -154,6 +154,9 @@ pacstrap -K /mnt \
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
 
+# Remove subvolids from fstab for better Snapper compatibility
+sed -i 's/subvolid=.*,//' /etc/fstab
+
 # Change root into the new system
 arch-chroot /mnt /bin/zsh -e << EOF
 
