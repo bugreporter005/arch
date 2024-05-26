@@ -185,7 +185,7 @@ arch-chroot /mnt /bin/zsh mkinitcpio -P
 arch-chroot /mnt /bin/zsh useradd -m -G wheel,libvert -s /bin/zsh ${username}
 arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | passwd ${username}
 arch-chroot /mnt /bin/zsh passwd --delete root && passwd --lock root # disable the root user
-echo "${username} ALL=(ALL:ALL) ALL" > /mnt/etc/sudoers.d/${username}
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//g" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Boot loader
 arch-chroot /mnt /bin/zsh cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
