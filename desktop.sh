@@ -141,8 +141,8 @@ pacstrap -K /mnt \
     linux-lts linux-firmware \
     ${microcode} \
     cryptsetup \
+    grub efibootmgr \
     btrfs-progs snapper snap-pac grub-btrfs \
-    efibootmgr \
     plymouth \
     networkmanager \
     terminus-font \
@@ -155,9 +155,6 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 # Remove subvolids from fstab for better Snapper compatibility
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
-
-# Change root into the new system
-#arch-chroot /mnt -e << EOF
 
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
@@ -187,19 +184,12 @@ arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root u
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Boot loader
-arch-chroot /mnt cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
-arch-chroot /mnt cd grub-improved-luks2-git
-arch-chroot /mnt echo -n ${user_passphrase} | su ${username}
-arch-chroot /mnt echo -n ${user_passphrase} | sudo makepkg -rsi --noconfirm
-arch-chroot /mnt exit
-arch-chroot /mnt cd ~ && rm -rf grub-improved-luks2-git
-
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
-boot_options="
+kernel_parameters="
 rd.luks.name=${DRIVE_UUID}=${luks_label}
 rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue
 root=UUID=${ROOT_UUID}
@@ -207,10 +197,10 @@ rootflags=subvol=/@ rw
 quiet splash
 loglevel=3 rd.udev.log_priority=3
 "
-boot_options="${boot_options//$'\n'/ }" # remove newline characters
+kernel_parameters="${kernel_parameters//$'\n'/ }" # remove newline characters
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/\".*\"/\$boot_options/' /mnt/etc/default/grub
+sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/\".*\"/\$kernel_parameters/' /mnt/etc/default/grub
 
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -222,9 +212,7 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
 
 # Reboot
-#exit
+exit
 #umount -a
 #cryptsetup close ${luks_label}
 #reboot
-
-#EOF
