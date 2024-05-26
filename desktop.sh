@@ -67,7 +67,6 @@ echo -n ${luks_passphrase} | cryptsetup -q \
                                         --sector-size 4096 \
                                         --pbkdf pbkdf2 \ # not needed once GRUB 2.13 releases
                                         --use-random \
-                                        --key-file - \
                                         luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
 
