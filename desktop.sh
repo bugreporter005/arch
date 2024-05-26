@@ -208,7 +208,8 @@ grub-mkconfig -o /mnt/boot/grub/grub.cfg
 # Mirror setup and Pacman configuration
 reflector --latest 10 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
-sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
+sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
+sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
 
 # Reboot
 #exit
