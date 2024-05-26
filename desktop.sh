@@ -180,9 +180,9 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 echo "${hostname}" > /mnt/etc/hostname
 
 # Initramfs
-sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/FILES=(.*)/FILES=(\/mnt\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/MODULES=()/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=()/FILES=(\/mnt\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -P
 
