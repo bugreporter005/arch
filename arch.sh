@@ -141,7 +141,8 @@ pacstrap -K /mnt \
     linux-lts linux-firmware \
     ${microcode} \
     cryptsetup \
-    btrfs-progs snapper \
+    btrfs-progs btrfs-assistant \
+    snapper snap-pac grub-btrfs \
     efibootmgr \
     plymouth \
     networkmanager \
