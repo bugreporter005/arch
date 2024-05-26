@@ -178,14 +178,14 @@ echo "${hostname}" > /mnt/etc/hostname
 # Initramfs
 sed -i "s/MODULES=()/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /etc/mkinitcpio.conf
+sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt /bin/zsh mkinitcpio -P
 
 # User management
 arch-chroot /mnt /bin/zsh useradd -m -G wheel,libvert -s /bin/zsh ${username}
 arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | passwd ${username}
-arch-chroot /mnt /bin/zsh passwd --lock root
-arch-chroot /mnt /bin/zsh echo "${username} ALL=(ALL:ALL) ALL" > /etc/sudoers.d/${username}
+arch-chroot /mnt /bin/zsh passwd --delete root && passwd --lock root # disable the root user
+echo "${username} ALL=(ALL:ALL) ALL" > /mnt/etc/sudoers.d/${username}
 
 # Boot loader
 arch-chroot /mnt /bin/zsh cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
@@ -195,23 +195,23 @@ arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | sudo makepkg -rsi --nocon
 arch-chroot /mnt /bin/zsh exit
 arch-chroot /mnt /bin/zsh cd ~ && rm -rf grub-improved-luks2-git
 
-arch-chroot /mnt /bin/zsh grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/mnt/efi --bootloader-id=GRUB
 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
-arch-chroot /mnt /bin/zsh sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /etc/default/grub
-arch-chroot /mnt /bin/zsh sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /etc/default/grub
+sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /mnt/etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
 
-arch-chroot /mnt /bin/zsh grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
-arch-chroot /mnt /bin/zsh reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-arch-chroot /mnt /bin/zsh sed -i "s/#Color/Color/" /etc/pacman.conf
-arch-chroot /mnt /bin/zsh sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /etc/pacman.conf
+reflector --latest 10 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
+sed -i "s/#Color/Color/" /mnt/etc/pacman.conf
+sed -i "s/#ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
 # Reboot
-arch-chroot /mnt /bin/zsh exit
+#exit
 #umount -a
 #cryptsetup close ${luks_label}
 #reboot
