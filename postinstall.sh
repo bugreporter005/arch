@@ -21,7 +21,7 @@ gpu_type=$(lspci)
 if grep -E "NVIDIA|GeForce" <<< ${gpu_type}; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
 elif lspci | grep 'VGA' | grep -E "Radeon|AMD"; then
-    gpu_driver="xf86-video-amdgpu"
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
 elif grep -E "Integrated Graphics Controller|Intel Corporation UHD" <<< ${gpu_type}; then
     gpu_driver="libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils lib32-mesa"
 fi
