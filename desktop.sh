@@ -212,6 +212,11 @@ sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
 
+# WiFi connection
+nmcli dev wifi connect ${wifi_ssid} \
+               password ${wifi_passphrase} # add 'hidden yes' for hidden networks
+systemctl enable NetworkManager --now
+
 # Reboot
 exit
 #umount -a
