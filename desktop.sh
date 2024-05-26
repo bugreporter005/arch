@@ -64,6 +64,7 @@ echo -n ${luks_passphrase} | cryptsetup -q \
                                         --key-size 512 \
                                         --hash sha512 \
                                         --sector-size 4096 \
+                                        --pbkdf pbkdf2 \ # remove once GRUB 2.12 releases
                                         --use-random \
                                         --key-file - \
                                         luksFormat ${root_part}
