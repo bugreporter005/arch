@@ -104,12 +104,6 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
-chmod 700 /mnt/.cryptkey
-head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
-chmod 600 /mnt/.cryptkey/keyfile.bin
-cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
-
 # Create and activate a swap file based on RAM size
 ram_size=$(free -m | awk '/^Mem:/{print $2}')
 swap_size=$(( (ram_size + 1023) / 1024 )) # convert to gigabytes and round up
@@ -164,6 +158,12 @@ genfstab -U /mnt > /mnt/etc/fstab
 # Remove subvolids from fstab for better Snapper compatibility
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
+# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+arch-chroot /mnt chmod 700 /.cryptkey
+arch-chroot /mnt head -c 64 /dev/urandom > /.cryptkey/keyfile.bin
+arch-chroot /mnt chmod 600 /.cryptkey/keyfile.bin
+arch-chroot /mnt cryptsetup -v luksAddKey -i 1 ${root_part} /.cryptkey/keyfile.bin
+
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 arch-chroot /mnt hwclock --systohc
@@ -181,7 +181,7 @@ echo "${hostname}" > /mnt/etc/hostname
 
 # Initramfs
 sed -i "s/MODULES=()/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/FILES=()/FILES=(\/mnt\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=()/FILES=(\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=()/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -P
@@ -203,7 +203,7 @@ rd.luks.name=${DRIVE_UUID}=${luks_label}
 rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue
 root=UUID=${ROOT_UUID}
 rootflags=subvol=/@ rw
-cryptkey=rootfs:/mnt/.cryptkey/keyfile.bin
+cryptkey=rootfs:/.cryptkey/keyfile.bin
 quiet splash
 loglevel=3 rd.udev.log_priority=3
 "
