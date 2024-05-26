@@ -203,6 +203,7 @@ rd.luks.name=${DRIVE_UUID}=${luks_label}
 rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue
 root=UUID=${ROOT_UUID}
 rootflags=subvol=/@ rw
+cryptkey=rootfs:/mnt/.cryptkey/keyfile.bin
 quiet splash
 loglevel=3 rd.udev.log_priority=3
 "
