@@ -185,7 +185,7 @@ arch-chroot /mnt /bin/zsh mkinitcpio -P
 arch-chroot /mnt /bin/zsh useradd -m -G wheel,libvert -s /bin/zsh ${username}
 arch-chroot /mnt /bin/zsh echo -n ${user_passphrase} | passwd ${username}
 arch-chroot /mnt /bin/zsh passwd --delete root && passwd --lock root # disable the root user
-sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//g" /mnt/etc/sudoers # give the wheel group sudo access
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Boot loader
 arch-chroot /mnt /bin/zsh cd ~ && git clone https://aur.archlinux.org/grub-improved-luks2-git.git # patched GRUB2 with Argon2 support
@@ -200,7 +200,7 @@ arch-chroot /mnt /bin/zsh grub-install --target=x86_64-efi --efi-directory=/efi 
 DRIVE_UUID=$(blkid -o value -s UUID ${drive})
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
-sed -i "s/#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/" /mnt/etc/default/grub
+sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${DRIVE_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=UUID=${ROOT_UUID} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
 
 arch-chroot /mnt /bin/zsh grub-mkconfig -o /boot/grub/grub.cfg
