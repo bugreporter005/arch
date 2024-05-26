@@ -62,10 +62,10 @@ parted --script ${drive} \
 # Encryption
 echo -n ${luks_passphrase} | cryptsetup -q \
                                         --type luks2 \
+                                        --pbkdf pbkdf2 \ # not needed once GRUB 2.13 is released
                                         --key-size 512 \
                                         --hash sha512 \
                                         --sector-size 4096 \
-                                        --pbkdf pbkdf2 \ # not needed once GRUB 2.13 releases
                                         --use-random \
                                         luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
