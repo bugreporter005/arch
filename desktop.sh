@@ -117,11 +117,12 @@ swapon /mnt/swap/swapfile
 mkfs.fat -F 32 -n EFI ${efi_part}
 mount ${efi_part} /mnt/efi
 
-# Set up mirrors
+# Mirror setup and Pacman configuration
 reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-
-# Enable parallel downloads in Pacman
-sed -i "/ParallelDownloads/s/^#//" /etc/pacman.conf
+sed -i "/Color/s/^#//" /etc/pacman.conf
+sed -i "/VerbosePkgLists/s/^#//g" /etc/pacman.conf
+sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
+sed -i "/ParallelDownloads/ILoveCandy" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
@@ -137,7 +138,7 @@ else
     exit 1
 fi
 
-# Install essential packages
+# Install base packages into the new system
 pacstrap -K /mnt \
     base base-devel \
     linux-lts linux-firmware \
