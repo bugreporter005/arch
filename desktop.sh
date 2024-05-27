@@ -162,7 +162,7 @@ sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 arch-chroot /mnt chmod 700 /.cryptkey
 arch-chroot /mnt head -c 64 /dev/urandom > /.cryptkey/keyfile.bin
 arch-chroot /mnt chmod 600 /.cryptkey/keyfile.bin
-arch-chroot /mnt cryptsetup -v luksAddKey -i 1 ${root_part} /.cryptkey/keyfile.bin
+arch-chroot /mnt echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /.cryptkey/keyfile.bin
 
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
