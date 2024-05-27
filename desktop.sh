@@ -209,7 +209,7 @@ loglevel=3 rd.udev.log_priority=3
 "
 kernel_params=$(echo "$kernel_params" | sed '/^$/d' | tr '\n' ' ' | sed 's/^ *//;s/ *$//') # formatting
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=\"\"/OPTIONS=\"$kernel_params\"/" /mnt/etc/default/grub
+sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=\"\"/GRUB_CMDLINE_LINUX_DEFAULT=\"$kernel_params\"/" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
