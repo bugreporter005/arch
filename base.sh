@@ -33,12 +33,12 @@ rfkill unblock all
 
 # Internet connection
 wifi=0
-if ! ping -c 2 archlinux.org > /dev/null; then
+if ! ping -c 1 archlinux.org > /dev/null; then
     iwctl --passphrase ${wifi_passphrase} \
           station ${wifi_interface} \
           connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
     wifi=1
-    if ! ping -c 2 archlinux.org > /dev/null; then
+    if ! ping -c 1 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
     fi
