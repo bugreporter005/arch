@@ -216,10 +216,9 @@ if "$wifi" == "yes"; then
                    password ${wifi_passphrase} 
                    # add 'hidden yes' for hidden networks
 fi
-systemctl enable NetworkManager --now
+arch-chroot /mnt systemctl enable NetworkManager
 
 # Reboot
-exit
 #umount -a
 #cryptsetup close ${luks_label}
 #reboot
