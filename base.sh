@@ -202,7 +202,7 @@ arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${use
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
-# Boot loader
+# Bootloader
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
@@ -210,7 +210,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.na
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
-reflector --latest 10 --protocol https --sort rate --save /mnt/etc/pacman.d/mirrorlist
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
