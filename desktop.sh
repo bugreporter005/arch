@@ -60,9 +60,10 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
+# use '--pbkdf argon2id' once GRUB 2.13 is released
 echo -n ${luks_passphrase} | cryptsetup -q \
                                         --type luks2 \
-                                        --pbkdf pbkdf2 \ # use 'argon2id' once GRUB 2.13 is released
+                                        --pbkdf pbkdf2 \
                                         --key-size 512 \
                                         --hash sha512 \
                                         --sector-size 4096 \
@@ -223,7 +224,8 @@ sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
 # WiFi connection
 if "$wifi" == "yes"; then
     nmcli dev wifi connect ${wifi_ssid} \
-                   password ${wifi_passphrase} # add 'hidden yes' for hidden networks
+                   password ${wifi_passphrase} 
+                   # add 'hidden yes' for hidden networks
 fi
 systemctl enable NetworkManager --now
 
