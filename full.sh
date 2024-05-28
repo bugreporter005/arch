@@ -203,7 +203,7 @@ arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${username}
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
-echo "${username}    ALL=(ALL)    NOPASSWD: ALL" >> /mnt/etc/sudoers # temporarily allow the new user to passwordlessly access sudo
+echo "${username} ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers # temporarily allow the new user to passwordlessly access sudo
 
 # Bootloader
 arch-chroot /mnt pacman -R grub --noconfirm
@@ -279,7 +279,7 @@ fi
 # ---------------------------------------------
 
 # Prohibit the user to passwordlessly access sudo
-sed -i "/${username}    ALL=(ALL)    NOPASSWD: ALL/d" /mnt/etc/sudoers
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 #umount -a
 #cryptsetup close ${luks_label}
