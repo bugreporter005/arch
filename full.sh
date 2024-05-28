@@ -36,7 +36,6 @@ setfont $console_font
 rfkill unblock all
 
 # Internet connection
-wifi=0
 if ! ping -c 1 archlinux.org > /dev/null; then
     iwctl --passphrase ${wifi_passphrase} \
           station ${wifi_interface} \
@@ -186,7 +185,7 @@ echo "${hostname}" > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
-if $wifi == 1; then
+if [ -n $wifi ]; then
     arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
                                     password ${wifi_passphrase} 
                                     # add 'hidden yes' for hidden networks
