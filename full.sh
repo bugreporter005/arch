@@ -22,6 +22,10 @@ user_passphrase=""
 gpu_driver="" # 'nvidia' or 'mesa'
 
 
+# ---------------------------------------------
+# Installation
+# ---------------------------------------------
+
 # Clean the TTY
 clear
 
@@ -200,7 +204,7 @@ arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${username}
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
-echo "${username}    ALL=(ALL)    NOPASSWD: ALL" >> /mnt/etc/sudoers # temporarily allow the new user to use sudo without password prompt
+echo "${username}    ALL=(ALL)    NOPASSWD: ALL" >> /mnt/etc/sudoers # temporarily allow the new user to passwordlessly access sudo
 
 # Bootloader
 arch-chroot /mnt pacman -R grub --noconfirm
@@ -219,6 +223,7 @@ sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/ILoveCandy" /mnt/etc/pacman.conf
+
 
 # ---------------------------------------------
 # Post-installation
@@ -262,8 +267,15 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     obs-studio \
     qemu-full virt-manager
-  
+
+
+# ---------------------------------------------
 # Reboot
+# ---------------------------------------------
+
+# Prohibit the user to passwordlessly access sudo
+sed -i "/${username}    ALL=(ALL)    NOPASSWD: ALL/d" /mnt/etc/sudoers
+
 #umount -a
 #cryptsetup close ${luks_label}
 #reboot
