@@ -122,7 +122,7 @@ mkfs.fat -F 32 -n EFI ${efi_part}
 mount ${efi_part} /mnt/efi
 
 # Mirror setup and Pacman configuration
-reflector --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 sed -i "/Color/s/^#//" /etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
@@ -219,6 +219,8 @@ arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Mirror setup and Pacman configuration
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+arch-chroot /mnt echo -e "--latest 5\n--protocol https\n--sort rate\n--save /etc/pacman.d/mirrorlist" > /etc/xdg/reflector/reflector.conf
+arch-chroot /mnt systemctl enable reflector.service
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
