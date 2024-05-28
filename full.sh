@@ -240,10 +240,10 @@ arch-chroot /mnt sudo -u ${username} makepkg -si --noconfirm && rm -rf $(pwd) &&
 arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     wget \
     curl \
-    man \
+    man-db man-pages \
     htop \
     fastfetch \
-    ntfs-3g gvfs-mtp exfat-utils \
+    exfatprogs \
     openssh \
     btrfs-assistant \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \
