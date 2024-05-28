@@ -160,7 +160,7 @@ pacstrap -K /mnt \
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
 
-# Remove subvolids from fstab for better Snapper compatibility
+# Remove subvolids for better Snapper compatibility
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
