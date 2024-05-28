@@ -246,6 +246,7 @@ fi
 
 # User packages
 arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
+    btrfs-assistant \
     ${gpu_driver} \
     wget \
     curl \
