@@ -141,7 +141,7 @@ else
     exit 1
 fi
 
-# Install base packages into the new system
+# Installation of essential packages
 pacstrap -K /mnt \
     base base-devel \
     linux-lts linux-firmware \
@@ -216,8 +216,7 @@ sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=\/@ rw cryptkey=rootfs:\/.cryptkey\/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
-# Mirror setup and Pacman configuration
-cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+# Pacman configuration
 arch-chroot /mnt echo -e "--latest 5\n--protocol https\n--sort rate\n--save /etc/pacman.d/mirrorlist" > /etc/xdg/reflector/reflector.conf
 arch-chroot /mnt systemctl enable reflector.service
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
