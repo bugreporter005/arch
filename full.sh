@@ -236,20 +236,8 @@ arch-chroot /mnt git clone https://aur.archlinux.org/paru-bin.git
 arch-chroot /mnt cd paru-bin
 arch-chroot /mnt sudo -u ${username} makepkg -si --noconfirm && rm -rf $(pwd) && cd -
 
-# Detect GPU driver
-gpu_type=$(lspci)
-if grep -E "NVIDIA|GeForce" <<< ${gpu_type}; then
-    gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
-elif lspci | grep 'VGA' | grep -E "Radeon|AMD"; then
-    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
-elif grep -E "Integrated Graphics Controller|Intel Corporation UHD" <<< ${gpu_type}; then
-    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
-fi
-
 # User packages
 arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
-    btrfs-assistant \
-    ${gpu_driver} \
     wget \
     curl \
     man \
@@ -257,8 +245,10 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     fastfetch \
     ntfs-3g gvfs-mtp exfat-utils \
     openssh \
+    btrfs-assistant \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \
-    xorg-wayland plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite ark breeze-gtk okular spectacle fuse2 \
+    xorg-wayland \
+    plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite ark breeze-gtk okular spectacle fuse2 \
     emacs-wayland \
     docker \
     flatpak \
@@ -270,6 +260,19 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     obs-studio \
     qemu-full virt-manager
+
+# GPU driver detection and installation
+gpu_type=$(lspci)
+if grep -E "NVIDIA|GeForce" <<< ${gpu_type}; then
+    gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
+elif lspci | grep 'VGA' | grep -E "Radeon|AMD"; then
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
+elif grep -E "Integrated Graphics Controller|Intel Corporation UHD" <<< ${gpu_type}; then
+    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
+fi
+if [ -n $gpu_driver ] then;
+    arch-chroot /mnt pacman -S ${gpu_driver} --noconfirm
+fi
 
 
 # ---------------------------------------------
