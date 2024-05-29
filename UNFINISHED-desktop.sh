@@ -275,7 +275,7 @@ if [ -n $gpu_driver ] then;
     arch-chroot /mnt pacman -S ${gpu_driver} --noconfirm
 fi
 
-# Additional software configuration
+# Additional configuration with dotfiles
 #arch-chroot /mnt git clone https://github.com/bugreporter005/dotfiles.git
 #arch-chroot /mnt cd dotfiles
 #arch-chroot /mnt cp zsh/config.cfg > /etc/zsh/
