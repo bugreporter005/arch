@@ -274,7 +274,7 @@ fi
 
 
 # ---------------------------------------------
-# Unmount all drives and reboot
+# Correct user privileges and reboot the system
 # ---------------------------------------------
 
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers # prohibit the user to passwordlessly access sudo
