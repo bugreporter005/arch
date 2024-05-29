@@ -277,8 +277,8 @@ fi
 # Unmount all drives and reboot
 # ---------------------------------------------
 
-# Prohibit the user to passwordlessly access sudo
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers # prohibit the user to passwordlessly access sudo
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 umount -a
 cryptsetup close ${luks_label}
 reboot
