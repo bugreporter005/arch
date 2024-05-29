@@ -242,6 +242,7 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     htop \
     fastfetch \
     ttf-hack-nerd \
+    lsd bat \
     exfatprogs \
     openssh \
     btrfs-assistant \
