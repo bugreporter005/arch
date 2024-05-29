@@ -241,8 +241,8 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     man-db man-pages \
     htop \
     fastfetch \
-    ttf-hack-nerd \
-    lsd bat \
+    lsd \
+    bat \
     exfatprogs \
     openssh \
     btrfs-assistant \
@@ -255,10 +255,11 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     firefox librewolf-bin ungoogled-chromium-bin \
     freetube-bin \
     libreoffice-fresh ttf-ms-win11-auto \
+    ttf-hack-nerd \
     anki-bin noto-fonts-emoji \
     ffmpeg \
-    thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     obs-studio \
+    thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager
 
 # GPU driver detection and installation
