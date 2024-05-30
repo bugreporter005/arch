@@ -126,7 +126,7 @@ sed -i "/ParallelDownloads/ILoveCandy" /etc/pacman.conf
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
 
-# Detect CPU vendor to install microcode
+# CPU vendor detection for microcode installation
 cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
 if [ "$cpu_vendor" == "AuthenticAMD" ]; then
     microcode="amd-ucode"
@@ -137,10 +137,15 @@ else
     exit 1
 fi
 
+# Virtual machine detection for package exclusion
+if [ systemd-detect-virt != "none" ] then;
+    linux-firmware="linux-firmware"
+fi
+
 # Installation of essential packages
 pacstrap -K /mnt \
     base base-devel \
-    linux-lts linux-firmware \
+    linux-lts ${linux-firmware} \
     ${microcode} \
     cryptsetup \
     refind \
