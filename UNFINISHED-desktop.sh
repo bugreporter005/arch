@@ -206,6 +206,15 @@ arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${use
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 echo "${username} ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers # temporary passwordless sudo access for the new user
 
+# ZRAM configuration
+cat > /mnt/etc/systemd/zram-generator.conf << EOF
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+EOF
+arch-chroot /mnt systemctl daemon-reload
+arch-chroot /mnt systemctl start /dev/zram0
+
 # Bootloader
 arch-chroot /mnt refind-install
 arch-chroot /mnt git clone https://aur.archlinux.org/refind-btrfs.git
