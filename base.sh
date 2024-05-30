@@ -104,7 +104,7 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# Swap file creation and activation for hibernation
+# Swap file configuration for hibernation
 ram_size=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
@@ -168,6 +168,17 @@ head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
 chmod 600 /mnt/.cryptkey/keyfile.bin
 echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
 
+# ZRAM configuration
+if [ $ram_size -le 64 ] then;
+    cat > /mnt/etc/systemd/zram-generator.conf << EOF
+[zram0]
+zram-size = ram * 2
+compression-algorithm = zstd
+EOF
+    arch-chroot /mnt systemctl daemon-reload
+    arch-chroot /mnt systemctl enable --now systemd-zram-setup@zram0.service
+fi
+
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 arch-chroot /mnt hwclock --systohc
@@ -219,13 +230,6 @@ ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=\/@ rw cryptkey=rootfs:\/.cryptkey\/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 zswap.enabled=0"/' /mnt/etc/default/grub
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-
-# ZRAM configuration
-cat > /mnt/etc/systemd/zram-generator.conf << EOF
-[zram0]
-zram-size = ram / 2
-compression-algorithm = zstd
-EOF
 
 # Pacman configuration
 arch-chroot /mnt echo -e "--latest 5\n--protocol https\n--sort rate\n--save /etc/pacman.d/mirrorlist" > /etc/xdg/reflector/reflector.conf
