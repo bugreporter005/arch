@@ -177,6 +177,7 @@ if [ $ram_size -le 64 ] then;
 zram-size = ram * 2
 compression-algorithm = zstd
 EOF
+    arch-chroot /mnt systemctl daemon-reload
     arch-chroot /mnt systemctl enable --now systemd-zram-setup@zram0.service
 fi
 
