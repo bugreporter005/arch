@@ -204,11 +204,20 @@ arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${use
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
+# ZRAM configuration
+cat > /mnt/etc/systemd/zram-generator.conf << EOF
+[zram0]
+zram-size = ram / 2
+compression-algorithm = zstd
+EOF
+arch-chroot /mnt systemctl daemon-reload
+arch-chroot /mnt systemctl start /dev/zram0
+
 # Bootloader
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=\/@ rw cryptkey=rootfs:\/.cryptkey\/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=\/@ rw cryptkey=rootfs:\/.cryptkey\/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 zswap.enabled=0"/' /mnt/etc/default/grub
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # ZRAM configuration
