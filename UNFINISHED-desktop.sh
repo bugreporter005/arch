@@ -230,7 +230,12 @@ ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 arch-chroot /mnt systemctl enable refind-btrfs.service
 
 # Pacman configuration
-arch-chroot /mnt echo -e "--latest 5\n--protocol https\n--sort rate\n--save /etc/pacman.d/mirrorlist" > /etc/xdg/reflector/reflector.conf
+arch-chroot /mnt cat > /etc/xdg/reflector/reflector.conf << EOF
+--latest 5
+--protocol https
+--sort rate
+--save /etc/pacman.d/mirrorlist
+EOF
 arch-chroot /mnt systemctl enable reflector.service
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
