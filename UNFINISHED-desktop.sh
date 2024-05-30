@@ -224,7 +224,7 @@ arch-chroot /mnt git clone https://aur.archlinux.org/refind-btrfs.git
 arch-chroot /mnt cd refind-btrfs
 arch-chroot /mnt sudo -u ${username} makepkg -si --noconfirm && rm -rf $(pwd) && cd -
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-arch-chroot /mnt echo "MY CONFIG GOES HERE" >> /efi/EFI/refind/refind.conf
+#arch-chroot /mnt echo "MY CONFIG GOES HERE" >> /efi/EFI/refind/refind.conf
 #sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 #sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=\/@ rw cryptkey=rootfs:\/.cryptkey\/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3"/' /mnt/etc/default/grub
 arch-chroot /mnt systemctl enable refind-btrfs.service
