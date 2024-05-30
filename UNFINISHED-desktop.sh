@@ -140,6 +140,8 @@ fi
 # Virtual machine detection for package exclusion
 if [ systemd-detect-virt != "none" ] then;
     linux-firmware="linux-firmware"
+else
+    linux-firmware=""
 fi
 
 # Installation of essential packages
