@@ -209,7 +209,7 @@ echo "${username} ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers # temporary p
 # ZRAM configuration
 cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
-zram-size = ram / 2
+zram-size = ram * 2
 compression-algorithm = zstd
 EOF
 arch-chroot /mnt systemctl daemon-reload
