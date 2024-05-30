@@ -234,7 +234,12 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=".*"/GRUB_CMDLINE_LINUX_DEFAULT="rd.luks.na
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Pacman configuration
-arch-chroot /mnt echo -e "--latest 5\n--protocol https\n--sort rate\n--save /etc/pacman.d/mirrorlist" > /etc/xdg/reflector/reflector.conf
+arch-chroot /mnt cat > /etc/xdg/reflector/reflector.conf << EOF
+--latest 5
+--protocol https
+--sort rate
+--save /etc/pacman.d/mirrorlist
+EOF
 arch-chroot /mnt systemctl enable reflector.service
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
