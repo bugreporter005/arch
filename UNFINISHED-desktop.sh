@@ -148,6 +148,7 @@ fi
 pacstrap -K /mnt \
     base base-devel \
     linux-lts ${linux_firmware} ${microcode} \
+    zram-generator \
     cryptsetup \
     refind \
     btrfs-progs snapper snap-pac \
