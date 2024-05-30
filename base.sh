@@ -128,25 +128,31 @@ sed -i "/ParallelDownloads/ILoveCandy" /etc/pacman.conf
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
 
-# Detect CPU vendor to install microcode
-cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
-if [ "$cpu_vendor" == "AuthenticAMD" ]; then
-    microcode="amd-ucode"
-elif [ "$cpu_vendor" == "GenuineIntel" ]; then
-    microcode="intel-ucode"
+# Virtual machine detection for package exclusions
+if [ systemd-detect-virt == "none" ] then;
+    # CPU vendor detection for microcode installation
+    cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
+    if [ "$cpu_vendor" == "AuthenticAMD" ]; then
+        microcode="amd-ucode"
+    elif [ "$cpu_vendor" == "GenuineIntel" ]; then
+        microcode="intel-ucode"
+    else
+        echo "Unsupported vendor $cpu_vendor"
+        exit 1
+    fi
+    linux_firmware="linux-firmware"
 else
-    echo "Unsupported vendor $cpu_vendor"
-    exit 1
+    linux_firmware=""
+    microcode=""
 fi
 
-# Install base packages into the new system
+# Installation of essential packages
 pacstrap -K /mnt \
     base base-devel \
-    linux-lts linux-firmware \
-    ${microcode} \
+    linux-lts ${linux_firmware} ${microcode} \
     cryptsetup \
-    grub efibootmgr \
-    btrfs-progs snapper snap-pac grub-btrfs \
+    grub efibootmgr grub-btrfs \
+    btrfs-progs snapper snap-pac \
     plymouth \
     networkmanager \
     terminus-font \
