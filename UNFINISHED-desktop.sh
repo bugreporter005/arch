@@ -107,14 +107,14 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# Format and mount the EFI partition
-mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/efi
-
 # Swap file configuration for hibernation
 ram_size=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
+
+# Format and mount the EFI partition
+mkfs.fat -F 32 -n EFI ${efi_part}
+mount ${efi_part} /mnt/efi
 
 # Mirror setup and Pacman configuration
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
