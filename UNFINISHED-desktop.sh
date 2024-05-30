@@ -107,10 +107,9 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# RAM size based swap file creation and activation
-ram_size=$(free -m | awk '/^Mem:/{print $2}')
-swap_size=$(( (ram_size + 1023) / 1024 )) # convert to gigabytes and round up
-btrfs filesystem mkswapfile --size ${swap_size}G --uuid clear /mnt/swap/swapfile
+# Swap file creation and activation for hibernation
+ram_size=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
+btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Format and mount the EFI partition
