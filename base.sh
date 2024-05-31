@@ -213,17 +213,6 @@ arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${use
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
-# ZRAM configuration
-if [ $ram_size -le 64 ]; then
-    cat > /mnt/etc/systemd/zram-generator.conf << EOF
-[zram0]
-zram-size = ram * 2
-compression-algorithm = zstd
-EOF
-    arch-chroot /mnt systemctl daemon-reload
-    arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
-fi
-
 # Bootloader
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
