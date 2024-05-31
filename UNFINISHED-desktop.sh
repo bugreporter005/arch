@@ -117,12 +117,9 @@ resume_offset=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 mkfs.fat -F 32 -n EFI ${efi_part}
 mount ${efi_part} /mnt/efi
 
-# Mirror setup and Pacman configuration
+# Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-sed -i "/Color/s/^#//" /etc/pacman.conf
-sed -i "/VerbosePkgLists/s/^#//g" /etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
-sed -i "/ParallelDownloads/ILoveCandy" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
