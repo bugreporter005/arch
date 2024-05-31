@@ -36,7 +36,7 @@ if ! ping -c 1 archlinux.org > /dev/null; then
     iwctl --passphrase ${wifi_passphrase} \
           station ${wifi_interface} \
           connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
-    wifi=1
+    #wifi=1
     if ! ping -c 1 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
@@ -195,11 +195,11 @@ echo "${hostname}" > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
-if [ -n $wifi ]; then
-    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
-                                    password ${wifi_passphrase} 
-                                    # add 'hidden yes' for hidden networks
-fi
+#if [ -n $wifi ]; then
+#    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
+#                                    password ${wifi_passphrase} 
+#                                    # add 'hidden yes' for hidden networks
+#fi
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
@@ -218,7 +218,7 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${resume_offset}\"|" /mnt/etc/default/grub
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --modules="part_gpt part_msdos"
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Pacman configuration
