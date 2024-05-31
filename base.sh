@@ -125,7 +125,7 @@ sed -i "/ParallelDownloads/ILoveCandy" /etc/pacman.conf
 pacman -Sy archlinux-keyring --noconfirm
 
 # Virtual machine detection for package exclusions
-if [ systemd-detect-virt == "none" ] then;
+if [ systemd-detect-virt == "none" ]; then
     # CPU vendor detection for microcode installation
     cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
     if [ "$cpu_vendor" == "AuthenticAMD" ]; then
