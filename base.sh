@@ -149,6 +149,7 @@ pacstrap -K /mnt \
     btrfs-progs snapper snap-pac \
     plymouth \
     networkmanager \
+    reflector \
     terminus-font \
     zsh zsh-completions \
     neovim \
