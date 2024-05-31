@@ -120,6 +120,7 @@ mount ${efi_part} /mnt/efi
 # Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
+sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" /etc/pacman.conf
 
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
