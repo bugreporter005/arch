@@ -170,7 +170,7 @@ chmod 600 /mnt/.cryptkey/keyfile.bin
 echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
 
 # ZRAM configuration
-if [ $ram_size -le 64 ] then;
+if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
 zram-size = ram * 2
