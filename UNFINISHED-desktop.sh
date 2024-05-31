@@ -272,7 +272,7 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     firefox librewolf-bin ungoogled-chromium-bin \
     freetube-bin \
     libreoffice-fresh ttf-ms-win11-auto \
-    ttf-hack-nerd \
+    ttf-jetbrains-mono-nerd \
     anki-bin noto-fonts-emoji \
     ffmpeg \
     obs-studio \
