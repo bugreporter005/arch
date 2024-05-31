@@ -210,7 +210,7 @@ arch-chroot /mnt mkinitcpio -P
 
 # User management
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
-arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${username}
+echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
