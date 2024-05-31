@@ -135,8 +135,8 @@ if [ systemd-detect-virt == "none" ]; then
     fi
     linux_firmware="linux-firmware"
 else
-    linux_firmware=""
     microcode=""
+    linux_firmware=""
 fi
 
 # Installation of essential packages
