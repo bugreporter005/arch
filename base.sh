@@ -214,7 +214,7 @@ arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root u
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # ZRAM configuration
-if [ $ram_size -le 64 ] then;
+if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
 zram-size = ram * 2
