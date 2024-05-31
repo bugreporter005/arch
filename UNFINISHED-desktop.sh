@@ -213,7 +213,7 @@ arch-chroot /mnt mkinitcpio -P
 
 # User management
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
-arch-chroot /mnt echo -e "${user_passphrase}\n${user_passphrase}" | passwd ${username}
+echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 echo "${username} ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers # temporary passwordless sudo access for the new user
 
