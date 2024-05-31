@@ -36,7 +36,7 @@ if ! ping -c 1 archlinux.org > /dev/null; then
     iwctl --passphrase ${wifi_passphrase} \
           station ${wifi_interface} \
           connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
-    #wifi=1
+    wifi=1
     if ! ping -c 1 archlinux.org > /dev/null; then
         echo "No internet connection"
         exit 1
@@ -194,12 +194,13 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 echo "${hostname}" > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
+if [ -n $wifi ]; then
+    systemctl stop iwd.service
+    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
+                                    password ${wifi_passphrase} 
+                                    # add 'hidden yes' for hidden networks
+fi
 arch-chroot /mnt systemctl enable NetworkManager.service
-#if [ -n $wifi ]; then
-#    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
-#                                    password ${wifi_passphrase} 
-#                                    # add 'hidden yes' for hidden networks
-#fi
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
