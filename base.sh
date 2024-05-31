@@ -104,7 +104,7 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
-# Swap file configuration to set up hibernation
+# Swap file to set up hibernation
 ram_size=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
