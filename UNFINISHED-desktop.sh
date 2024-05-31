@@ -279,7 +279,7 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager
 
-# GPU driver detection and installation
+# GPU detection and video driver installation
 gpu=$(lspci | grep 'VGA compatible controller')
 if [ grep "Intel Corporation" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
