@@ -263,6 +263,7 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
     bat \
     exfatprogs \
     openssh \
+    network-manager-applet \
     btrfs-assistant \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \
     xorg-wayland \
