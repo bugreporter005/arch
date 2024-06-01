@@ -93,7 +93,7 @@ chattr +C /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,efi,home,opt,srv,tmp,var,swap,.snapshots} #,.cryptkey}
+mkdir /mnt/{boot,home,opt,srv,tmp,var,swap,.snapshots} #,.cryptkey}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
 mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
@@ -110,7 +110,7 @@ swapon /mnt/swap/swapfile
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/efi
+mount ${efi_part} /mnt/boot
 
 # Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
