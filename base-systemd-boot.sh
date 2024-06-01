@@ -82,12 +82,12 @@ btrfs subvolume create /mnt/@srv
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
-#btrfs subvolume create /mnt/@cryptkey
+btrfs subvolume create /mnt/@cryptkey
 btrfs subvolume create /mnt/@swap
 
 # Disable CoW on certain subvolumes
 chattr +C /mnt/@tmp
-#chattr +C /mnt/@cryptkey
+chattr +C /mnt/@cryptkey
 chattr +C /mnt/@swap
 
 # Mount the BTRFS subvolumes 
@@ -100,7 +100,7 @@ mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} 
 mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
-#mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
+mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Swap file to set up hibernation
@@ -160,6 +160,9 @@ genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+arch-chroot /mnt dd bs=512 count=4 if=/dev/random of=/root/.cryptkey/keyfile.bin iflag=fullblock
+arch-chroot /mnt chmod 600 /root/.cryptkey/keyfile.bin
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /root/.cryptkey/keyfile.bin
 #chmod 700 /mnt/.cryptkey
 #head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
 #chmod 600 /mnt/.cryptkey/keyfile.bin
@@ -201,7 +204,7 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-#sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=(.*)/FILES=(\/root\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 if [ "$microcode" == "" ]; then
     sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
