@@ -93,7 +93,7 @@ chattr +C /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,efi,home,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
+mkdir /mnt/{boot,efi,home,opt,srv,tmp,var,swap,.snapshots} #,.cryptkey}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
 mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
