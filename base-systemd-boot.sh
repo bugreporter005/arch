@@ -199,7 +199,6 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 #                                    password ${wifi_passphrase} 
 #                                    # add 'hidden yes' for hidden networks
 #fi
-arch-chroot /mnt systemctl enable NetworkManager.service
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
