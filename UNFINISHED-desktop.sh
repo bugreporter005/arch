@@ -283,11 +283,11 @@ arch-chroot /mnt sudo -u ${username} paru --noconfirm -S \
 
 # GPU detection and video driver installation
 gpu=$(lspci | grep 'VGA compatible controller')
-if [ grep "Intel Corporation" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
 elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
-elif [ grep "Intel Corporation" <<< ${gpu} ]; then
+elif [ grep "Intel" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
 elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
