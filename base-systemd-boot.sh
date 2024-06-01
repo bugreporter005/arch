@@ -60,7 +60,6 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-# use '--pbkdf argon2id' once GRUB 2.13 is released
 echo -n ${luks_passphrase} | cryptsetup -q \
                                         --type luks2 \
                                         --pbkdf argon2id \
@@ -202,7 +201,7 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
+#sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 if [ "$microcode" == "" ]; then
     sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
