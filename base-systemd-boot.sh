@@ -246,6 +246,9 @@ sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
+# Internet
+arch-chroot /mnt systemctl enable NetworkManager.service
+
 # Reboot
 #umount -a
 #cryptsetup close ${luks_label}
