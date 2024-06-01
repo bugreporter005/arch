@@ -83,12 +83,12 @@ btrfs subvolume create /mnt/@srv
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
-btrfs subvolume create /mnt/@cryptkey
+#btrfs subvolume create /mnt/@cryptkey
 btrfs subvolume create /mnt/@swap
 
 # Disable CoW on certain subvolumes
 chattr +C /mnt/@tmp
-chattr +C /mnt/@cryptkey
+#chattr +C /mnt/@cryptkey
 chattr +C /mnt/@swap
 
 # Mount the BTRFS subvolumes 
@@ -101,7 +101,7 @@ mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} 
 mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
-mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
+#mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Swap file to set up hibernation
@@ -161,10 +161,10 @@ genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
-chmod 700 /mnt/.cryptkey
-head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
-chmod 600 /mnt/.cryptkey/keyfile.bin
-echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
+#chmod 700 /mnt/.cryptkey
+#head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
+#chmod 600 /mnt/.cryptkey/keyfile.bin
+#echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
 
 # ZRAM configuration
 if [ $ram_size -le 64 ]; then
@@ -218,16 +218,17 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-resume_offset=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
+RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 bootctl install
 arch-chroot /mnt cat > /boot/loader/entries/archlinux.conf << EOF
 title   Arch Linux
 initrd  /initramfs-linux-lts.img
 linux   /vmlinuz-linux-lts
-options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw
-options cryptkey=rootfs:/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3
-options resume=/dev/mapper/${luks_label} resume_offset=${resume_offset}
+options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw 
+options quiet splash loglevel=3 rd.udev.log_priority=3
+options resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}
 EOF
+#options cryptkey=rootfs:/.cryptkey/keyfile.bin
 arch-chroot /mnt cat > /boot/loader/loader.conf << EOF
 timeout 3
 default archlinux.conf
