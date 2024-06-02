@@ -162,7 +162,7 @@ sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
 arch-chroot /mnt dd bs=512 count=4 if=/dev/random of=/.cryptkey/keyfile.bin iflag=fullblock
 arch-chroot /mnt chmod 600 /.cryptkey/keyfile.bin
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /.cryptkey/keyfile.bin
+echo -n ${luks_passphrase} | arch-chroot /mnt cryptsetup luksAddKey ${root_part} /.cryptkey/keyfile.bin
 #chmod 700 /mnt/.cryptkey
 #head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
 #chmod 600 /mnt/.cryptkey/keyfile.bin
