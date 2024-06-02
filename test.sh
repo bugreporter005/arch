@@ -3,27 +3,16 @@
 set -e
 
 console_font="ter-v18n"
-
-wifi_interface="wlan0"
-wifi_ssid=""
-wifi_passphrase=""
-
-drive="/dev/vda" # run 'lsblk'
-efi_part="${drive}1" # 'p1' for NVME
+drive="/dev/vda"
+efi_part="${drive}1"
 root_part="${drive}2"
-
 luks_label="cryptroot"
 luks_passphrase=""
-
-hostname="arch"
-
+hostname="linux"
 username=""
 user_passphrase=""
 
 
-
-# Clean the TTY
-clear
 
 # Set a bigger font
 setfont $console_font
@@ -39,14 +28,7 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-echo -n ${luks_passphrase} | cryptsetup -q \
-                                        --type luks2 \
-                                        --pbkdf argon2id \
-                                        --key-size 512 \
-                                        --hash sha512 \
-                                        --sector-size 4096 \
-                                        --use-random \
-                                        luksFormat ${root_part}
+echo -n ${luks_passphrase} | cryptsetup -q --type luks2 --pbkdf pbkdf2 --key-size 512 --hash sha512 --use-random luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
@@ -56,32 +38,20 @@ mount /dev/mapper/${luks_label} /mnt
 # Create BTRFS subvolumes
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
-btrfs subvolume create /mnt/@opt
-btrfs subvolume create /mnt/@srv
-btrfs subvolume create /mnt/@tmp
-btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@swap
-
-# Disable CoW on certain subvolumes
-chattr +C /mnt/@tmp
-chattr +C /mnt/@swap
 
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,home,opt,srv,tmp,var,swap,.snapshots}
+mkdir /mnt/{boot,efi,home,swap,.snapshots}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
-mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
-mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
-mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/boot
+mount ${efi_part} /mnt/efi
 
 # Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -92,18 +62,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" 
 pacman -Sy archlinux-keyring --noconfirm
 
 # Installation of essential packages
-pacstrap -K /mnt \
-    base base-devel \
-    linux-lts \
-    zram-generator \
-    cryptsetup \
-    btrfs-progs snapper snap-pac \
-    plymouth \
-    networkmanager \
-    terminus-font \
-    zsh zsh-completions \
-    neovim \
-    git
+pacstrap -K /mnt base linux-lts cryptsetup grub efibootmgr grub-btrfs btrfs-progs snapper networkmanager terminus-font neovim
 
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
@@ -124,51 +83,20 @@ echo "${hostname}" > /mnt/etc/hostname
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -P
 
 # User management
-arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
+arch-chroot /mnt useradd -m -G wheel -s /bin/bash ${username}
 echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
-bootctl install
-arch-chroot /mnt cat > /boot/loader/entries/archlinux.conf << EOF
-title   Arch Linux
-initrd  /initramfs-linux-lts.img
-linux   /vmlinuz-linux-lts
-options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw 
-options quiet splash loglevel=3 rd.udev.log_priority=3
-options resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}
-EOF
-#options cryptkey=rootfs:/root/.cryptkey/keyfile.bin
-arch-chroot /mnt cat > /boot/loader/loader.conf << EOF
-timeout 3
-default archlinux.conf
-console-mode max
-editor no
-EOF
-
-# Pacman configuration
-arch-chroot /mnt cat > /etc/xdg/reflector/reflector.conf << EOF
---latest 5
---protocol https
---sort rate
---save /etc/pacman.d/mirrorlist
-EOF
-arch-chroot /mnt systemctl enable reflector.service
-sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
-sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
-sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
-sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
+sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=discard root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw quiet splash\"|" /mnt/etc/default/grub
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 # Internet
 arch-chroot /mnt systemctl enable NetworkManager.service
-
-# Reboot
-#umount -a
-#cryptsetup close ${luks_label}
-#reboot
