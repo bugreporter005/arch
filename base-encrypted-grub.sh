@@ -68,7 +68,7 @@ echo -n ${luks_passphrase} | cryptsetup -q \
                                         --key-size 512 \
                                         --hash sha512 \
                                         --sector-size 4096 \
-                                        --use-random \
+                                        --use-urandom \
                                         luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
 
