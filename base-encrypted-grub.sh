@@ -63,6 +63,7 @@ parted --script ${drive} \
 # use '--pbkdf argon2id' once GRUB 2.13 is released
 echo -n ${luks_passphrase} | cryptsetup -q \
                                         --type luks2 \
+                                        --cipher aes-xts-plain64 \
                                         --pbkdf pbkdf2 \
                                         --key-size 512 \
                                         --hash sha512 \
