@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 console_font="ter-v18n"
 
@@ -19,7 +20,6 @@ hostname="arch"
 username=""
 user_passphrase=""
 
-gpu_driver="" # 'nvidia' or 'mesa'
 
 
 # Clean the TTY
