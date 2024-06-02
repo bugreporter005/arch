@@ -75,7 +75,7 @@ chattr +C /mnt/@swap
 
 # Mount the BTRFS subvolumes 
 umount /mnt
-mount -o noatime,compress=zstd,commit=120,subvol=@ ${root_part}/mnt
+mount -o noatime,compress=zstd,commit=120,subvol=@ ${root_part} /mnt
 mkdir /mnt/{boot,home,opt,srv,tmp,var,swap,.snapshots}
 mount -o noatime,compress=zstd,commit=120,subvol=@home ${root_part} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt ${root_part} /mnt/opt
