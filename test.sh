@@ -7,10 +7,10 @@ drive="/dev/vda"
 efi_part="${drive}1"
 root_part="${drive}2"
 luks_label="cryptroot"
-luks_passphrase=""
+luks_password=""
 hostname="linux"
 username=""
-user_passphrase=""
+user_password=""
 
 
 
@@ -28,8 +28,8 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-echo -n ${luks_passphrase} | cryptsetup -q --type luks2 --pbkdf pbkdf2 --key-size 512 --hash sha512 --use-random luksFormat ${root_part}
-echo -n ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
+echo -n ${luks_password} | cryptsetup -q --type luks2 --pbkdf pbkdf2 --key-size 512 --hash sha512 --use-random luksFormat ${root_part}
+echo -n ${luks_password} | cryptsetup luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
 mkfs.btrfs -L ROOT /dev/mapper/${luks_label}
@@ -88,7 +88,7 @@ arch-chroot /mnt mkinitcpio -P
 
 # User management
 arch-chroot /mnt useradd -m -G wheel -s /bin/bash ${username}
-echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
+echo "${username}:${user_password}" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
 
 # Bootloader
