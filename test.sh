@@ -28,7 +28,7 @@ parted --script ${drive} \
        mkpart ROOT btrfs 513MiB 100%
 
 # Encryption
-echo ${luks_password} | cryptsetup --type luks2 --pbkdf pbkdf2 --key-size 512 --hash sha512 --use-urandom --key-file - luksFormat ${root_part}
+echo ${luks_password} | cryptsetup --type luks2 --cipher aes-xts-plain64 --pbkdf pbkdf2 --key-size 512 --hash sha512 --use-urandom --key-file - luksFormat ${root_part}
 echo ${luks_password} | cryptsetup luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
