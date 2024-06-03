@@ -70,7 +70,8 @@ echo ${luks_passphrase} | cryptsetup --type luks2 \
                                      --use-urandom \
                                      --key-file - \
                                      luksFormat ${root_part}
-echo ${luks_passphrase} | cryptsetup luksOpen ${root_part} ${luks_label}
+echo ${luks_passphrase} | cryptsetup --key-file - \
+                                     luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
 mkfs.btrfs -L ROOT /dev/mapper/${luks_label}
