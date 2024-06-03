@@ -62,7 +62,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" 
 pacman -Sy archlinux-keyring --noconfirm
 
 # Installation of essential packages
-pacstrap -K /mnt base linux-lts cryptsetup grub efibootmgr grub-btrfs btrfs-progs snapper networkmanager terminus-font neovim
+pacstrap -K /mnt base linux-lts sudo cryptsetup grub efibootmgr grub-btrfs btrfs-progs snapper networkmanager terminus-font neovim
 
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
