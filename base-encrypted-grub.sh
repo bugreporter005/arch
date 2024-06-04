@@ -198,6 +198,7 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
 chmod 600 /mnt/.cryptkey/keyfile.bin
 echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/keyfile.bin
