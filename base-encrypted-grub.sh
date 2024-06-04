@@ -11,7 +11,7 @@ drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
 
-luks_label="root"
+luks_label="cryptroot"
 luks_passphrase=""
 
 hostname="arch"
@@ -19,7 +19,6 @@ hostname="arch"
 username=""
 user_passphrase=""
 
-gpu_driver="" # 'nvidia' or 'mesa'
 
 
 # Clean the TTY
@@ -163,12 +162,6 @@ genfstab -U /mnt > /mnt/etc/fstab
 # Remove subvolids from fstab for better Snapper compatibility
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
-# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
-chmod 700 /mnt/.cryptkey
-head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
-chmod 600 /mnt/.cryptkey/keyfile.bin
-echo -n ${luks_passphrase} | cryptsetup -v luksAddKey -i 1 ${root_part} /mnt/.cryptkey/keyfile.bin
-
 # ZRAM configuration
 if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
@@ -203,6 +196,11 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 #                                    # add 'hidden yes' for hidden networks
 #fi
 arch-chroot /mnt systemctl enable NetworkManager.service
+
+# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
+chmod 600 /mnt/.cryptkey/keyfile.bin
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/keyfile.bin
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
