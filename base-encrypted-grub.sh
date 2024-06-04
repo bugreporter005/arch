@@ -62,14 +62,14 @@ parted --script ${drive} \
 # Encryption
 # use '--pbkdf argon2id' once GRUB 2.13 is released
 echo -n ${luks_passphrase} | cryptsetup --type luks2 \
-                                     --cipher aes-xts-plain64 \
-                                     --pbkdf pbkdf2 \
-                                     --key-size 512 \
-                                     --hash sha512 \
-                                     --sector-size 4096 \
-                                     --use-urandom \
-                                     --key-file - \
-                                     luksFormat ${root_part}
+                                        --cipher aes-xts-plain64 \
+                                        --pbkdf pbkdf2 \
+                                        --key-size 512 \
+                                        --hash sha512 \
+                                        --sector-size 4096 \
+                                        --use-urandom \
+                                        --key-file - \
+                                        luksFormat ${root_part}
 echo -n ${luks_passphrase} | cryptsetup --key-file - \
                                         luksOpen ${root_part} ${luks_label}
 
@@ -196,12 +196,12 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 echo "${hostname}" > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
-if [ $wifi ]; then
-    systemctl stop iwd.service
-    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
-                                    password ${wifi_passphrase} 
-                                    # add 'hidden yes' for hidden networks
-fi
+#if [ $wifi ]; then
+#    systemctl stop iwd.service
+#    arch-chroot /mnt nmcli dev wifi connect ${wifi_ssid} \
+#                                    password ${wifi_passphrase} 
+#                                    # add 'hidden yes' for hidden networks
+#fi
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 # Initramfs
@@ -222,9 +222,9 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-resume_offset=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
+RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${resume_offset}\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
