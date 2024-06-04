@@ -61,7 +61,7 @@ parted --script ${drive} \
 
 # Encryption
 # use '--pbkdf argon2id' once GRUB 2.13 is released
-echo ${luks_passphrase} | cryptsetup --type luks2 \
+echo -n ${luks_passphrase} | cryptsetup --type luks2 \
                                      --cipher aes-xts-plain64 \
                                      --pbkdf pbkdf2 \
                                      --key-size 512 \
@@ -70,8 +70,8 @@ echo ${luks_passphrase} | cryptsetup --type luks2 \
                                      --use-urandom \
                                      --key-file - \
                                      luksFormat ${root_part}
-echo ${luks_passphrase} | cryptsetup --key-file - \
-                                     luksOpen ${root_part} ${luks_label}
+echo -n ${luks_passphrase} | cryptsetup --key-file - \
+                                        luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
 mkfs.btrfs -L ROOT /dev/mapper/${luks_label}
