@@ -106,8 +106,8 @@ mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Swap file to set up hibernation
-ram_size=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
-btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
+RAM_SIZE=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
+btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Format and mount the EFI partition
