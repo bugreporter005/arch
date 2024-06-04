@@ -11,7 +11,7 @@ drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
 
-luks_label="cryptroot"
+luks_label="root"
 luks_passphrase=""
 
 hostname="arch"
