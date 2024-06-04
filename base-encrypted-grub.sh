@@ -55,9 +55,9 @@ fi
 # Partition
 parted --script ${drive} \
        mklabel gpt \
-       mkpart EFI fat32 0% 513MiB \
+       mkpart "EFI" fat32 0% 513MiB \
        set 1 esp on \
-       mkpart ROOT btrfs 513MiB 100%
+       mkpart "ROOT" btrfs 513MiB 100%
 
 # Encryption
 # use '--pbkdf argon2id' once GRUB 2.13 is released
@@ -74,7 +74,7 @@ echo -n ${luks_passphrase} | cryptsetup --key-file - \
                                         luksOpen ${root_part} ${luks_label}
 
 # Format and mount the encrypted root partition
-mkfs.btrfs -L ROOT /dev/mapper/${luks_label}
+mkfs.btrfs -L "ROOT" /dev/mapper/${luks_label}
 mount /dev/mapper/${luks_label} /mnt
 
 # Create BTRFS subvolumes
@@ -112,7 +112,7 @@ btrfs filesystem mkswapfile --size ${ram_size}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Format and mount the EFI partition
-mkfs.fat -F 32 -n EFI ${efi_part}
+mkfs.fat -F 32 -n "EFI" ${efi_part}
 mount ${efi_part} /mnt/efi
 
 # Mirror setup and enable parallel download in Pacman
