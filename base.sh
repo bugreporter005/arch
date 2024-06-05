@@ -121,7 +121,7 @@ umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir /mnt/{efi,home,opt,srv,tmp,var,swap,.snapshots}
+mkdir /mnt/{boot,home,opt,srv,tmp,var,swap,.snapshots}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
@@ -134,7 +134,7 @@ mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /m
 
 # Format & mount the EFI partition
 mkfs.fat -F 32 -n "EFI" ${efi_part}
-mount ${efi_part} /mnt/efi
+mount ${efi_part} /mnt/boot
 
 
 # Create & enable a swap file for hibernation
