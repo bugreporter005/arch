@@ -293,7 +293,7 @@ arch-chroot /mnt btrfs subvolume delete /.snapshots
 mkdir /mnt/.snapshots
 mount -a
 
-ROOT_SUBVOL_ID=$(arch-chroot /mnt sudo btrfs subvol list / | grep -w 'path @$' | awk '{print $2}')
+ROOT_SUBVOL_ID=$(arch-chroot /mnt btrfs subvol list / | grep -w 'path @$' | awk '{print $2}')
 arch-chroot /mnt btrfs subvol set-default ${ROOT_SUBVOL_ID} /
 
 sed -i "s|ALLOW_GROUPS=\".*\"|ALLOW_GROUPS=\"wheel\"|" /mnt/etc/snapper/configs/root
