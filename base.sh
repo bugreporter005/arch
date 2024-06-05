@@ -288,7 +288,7 @@ arch-chroot /mnt snapper -c home create-config /home
 
 arch-chroot /mnt btrfs subvolume delete /.snapshots
 mkdir /mnt/.snapshots
-mount -a
+arch-chroot /mnt mount -a
 
 ROOT_SUBVOL_ID=$(arch-chroot /mnt btrfs subvol list / | grep -w 'path @$' | awk '{print $2}')
 arch-chroot /mnt btrfs subvol set-default ${ROOT_SUBVOL_ID} /
