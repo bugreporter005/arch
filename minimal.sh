@@ -2,14 +2,17 @@
 
 
 console_font="ter-v18n"
+
 wifi_interface="wlan0"
 wifi_ssid=""
 wifi_passphrase=""
+
 drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
 luks_label="cryptroot"
 luks_passphrase=""
+
 hostname="archlinux"
 username=""
 user_passphrase=""
@@ -19,6 +22,8 @@ user_passphrase=""
 # Installation
 # ---------------------------------------------
 
+
+set -e
 
 # Clean the TTY
 clear
@@ -107,8 +112,140 @@ mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /m
 mkfs.fat -F 32 -n "EFI" ${efi_part}
 mount ${efi_part} /mnt/efi
 
-# Create a swap file for hibernation
+# Create & enable a swap file for hibernation
 RAM_SIZE=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
+# Setup mirrors & enable parallel downloading in Pacman
+reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
+sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" /etc/pacman.conf
+
+# Update keyrings to prevent packages failing to install
+pacman -Sy archlinux-keyring --noconfirm
+
+# Skip firmware and microcode installation if running in a virtual machine
+if [ systemd-detect-virt == "none" ]; then
+    # CPU vendor detection for microcode installation
+    cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
+    if [ "$cpu_vendor" == "AuthenticAMD" ]; then
+        microcode="amd-ucode"
+    elif [ "$cpu_vendor" == "GenuineIntel" ]; then
+        microcode="intel-ucode"
+    else
+        echo "Unsupported vendor $cpu_vendor"
+        exit 1
+    fi
+    linux_firmware="linux-firmware"
+else
+    microcode=""
+    linux_firmware=""
+fi
+
+# Install essential packages
+pacstrap -K /mnt \
+    base base-devel \
+    linux-lts ${linux_firmware} ${microcode} \
+    zram-generator \
+    cryptsetup \
+    btrfs-progs snapper snap-pac \
+    plymouth \
+    networkmanager \
+    reflector \
+    terminus-font \
+    zsh zsh-completions \
+    neovim \
+    git
+
+# Generate fstab & remove subvolids to boot into snapshots
+genfstab -U /mnt > /mnt/etc/fstab
+sed -i 's/subvolid=.*,//' /mnt/etc/fstab
+
+# ZRAM
+if [ $ram_size -le 64 ]; then
+    cat > /mnt/etc/systemd/zram-generator.conf << EOF
+[zram0]
+zram-size = ram * 2
+compression-algorithm = zstd
+EOF
+    arch-chroot /mnt systemctl daemon-reload
+    arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
+fi
+
+# Set timezone based on IP address
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
+arch-chroot /mnt hwclock --systohc
+
+# Localization
+arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt locale-gen
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
+
+# Network
+echo "${hostname}" > /mnt/etc/hostname
+ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
+arch-chroot /mnt systemctl enable systemd-resolved.service
+arch-chroot /mnt systemctl enable NetworkManager.service
+
+# Backup LUKS header
+cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/header.bin
+
+# Initramfs
+sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/keyfile.bin)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
+if [ "$microcode" == "" ]; then
+    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+else
+    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+arch-chroot /mnt mkinitcpio -P
+
+# User management
+arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
+echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
+arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
+
+# Bootloader
+ROOT_UUID=$(blkid -o value -s UUID ${root_part})
+RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
+
+bootctl install
+
+cat > /mnt/efi/loader/entries/archlinux.conf << EOF
+title   Arch Linux
+initrd  /initramfs-linux-lts.img
+linux   /vmlinuz-linux-lts
+options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw 
+options quiet splash loglevel=3 rd.udev.log_priority=3
+options resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}
+EOF
+
+cat > /mnt/efi/loader/loader.conf << EOF
+timeout 3
+default archlinux.conf
+console-mode max
+editor no
+EOF
+
+# Additional Pacman configuration
+cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
+--latest 5
+--protocol https
+--sort rate
+--save /etc/pacman.d/mirrorlist
+EOF
+
+arch-chroot /mnt systemctl enable reflector.service
+
+sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
+sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
+sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
+sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
+
+# Reboot
+reboot
