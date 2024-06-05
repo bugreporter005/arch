@@ -25,8 +25,10 @@ user_passphrase=""
 
 set -e
 
+
 # Clean the TTY
 clear
+
 
 # Verify the UEFI mode
 if [ ! -d "/sys/firmware/efi/efivars" ]; then
@@ -34,8 +36,10 @@ if [ ! -d "/sys/firmware/efi/efivars" ]; then
     exit 1
 fi
 
+
 # Set a custom TTY font
 setfont $console_font
+
 
 # Check internet connection
 if ! ping -c 1 archlinux.org > /dev/null; then
@@ -55,8 +59,10 @@ if ! ping -c 1 archlinux.org > /dev/null; then
     fi
 fi
 
+
 # Update the system clock
 timedatectl set-ntp true
+
 
 # Partition
 parted --script ${drive} \
@@ -64,6 +70,7 @@ parted --script ${drive} \
        mkpart "EFI" fat32 0% 513MiB \
        set 1 esp on \
        mkpart "ROOT" btrfs 513MiB 100%
+
 
 # Encrypt the root partition
 echo -n ${luks_passphrase} | cryptsetup --type luks2 \
@@ -75,12 +82,16 @@ echo -n ${luks_passphrase} | cryptsetup --type luks2 \
                                         --use-urandom \
                                         --key-file - \
                                         luksFormat ${root_part}
+
 echo -n ${luks_passphrase} | cryptsetup --key-file - \
                                         luksOpen ${root_part} ${luks_label}
+
+
 
 # Format & mount the encrypted root partition
 mkfs.btrfs -L "ROOT" /dev/mapper/${luks_label}
 mount /dev/mapper/${luks_label} /mnt
+
 
 # Create BTRFS subvolumes
 btrfs subvolume create /mnt/@
@@ -92,38 +103,44 @@ btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@swap
 
+
 # Disable CoW for temporary files and swap
 chattr +C /mnt/@tmp
 chattr +C /mnt/@swap
 
+
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{efi,home,opt,srv,tmp,var,swap,.snapshots}
+mkdir /mnt/{efi,home,opt,srv,tmp,var,swap}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
 mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
 mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
-mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
+
 
 # Format & mount the EFI partition
 mkfs.fat -F 32 -n "EFI" ${efi_part}
 mount ${efi_part} /mnt/efi
+
 
 # Create & enable a swap file for hibernation
 RAM_SIZE=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
+
 # Setup mirrors & enable parallel downloading in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" /etc/pacman.conf
 
+
 # Update keyrings to prevent packages failing to install
 pacman -Sy archlinux-keyring --noconfirm
+
 
 # Skip firmware and microcode installation if running in a virtual machine
 if [ systemd-detect-virt == "none" ]; then
@@ -143,6 +160,7 @@ else
     linux_firmware=""
 fi
 
+
 # Install essential packages
 pacstrap -K /mnt \
     base base-devel \
@@ -158,9 +176,11 @@ pacstrap -K /mnt \
     neovim \
     git
 
+
 # Generate fstab & remove subvolids to boot into snapshots
 genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
+
 
 # ZRAM
 if [ $ram_size -le 64 ]; then
@@ -173,9 +193,11 @@ EOF
     arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
 fi
 
+
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 arch-chroot /mnt hwclock --systohc
+
 
 # Localization
 arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
@@ -185,14 +207,17 @@ arch-chroot /mnt locale-gen
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
+
 # Network
 echo "${hostname}" > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
+
 # Backup LUKS header
 cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/header.bin
+
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
@@ -204,11 +229,13 @@ else
     sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -P
 
+
 # User management
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
+
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
@@ -232,7 +259,8 @@ console-mode max
 editor no
 EOF
 
-# Additional Pacman configuration
+
+# Pacman configuration
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
 --latest 5
 --protocol https
@@ -246,6 +274,25 @@ sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
+
+
+# Snapper configuration
+arch-chroot /mnt snapper -c root create-config /
+arch-chroot /mnt snapper -c home create-config /home
+
+cat > /etc/snapper/configs/ << EOF
+ALLOW_GROUPS="wheel"
+
+# limits for timeline cleanup
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="5"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+EOF
+
+arch-chroot /mnt chown -R :wheel /.snapshots/
 
 # Reboot
 reboot
