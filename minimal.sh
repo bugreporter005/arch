@@ -187,18 +187,6 @@ genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 
-# ZRAM
-if [ $ram_size -le 64 ]; then
-    cat > /mnt/etc/systemd/zram-generator.conf << EOF
-[zram0]
-zram-size = ram * 2
-compression-algorithm = zstd
-EOF
-    arch-chroot /mnt systemctl daemon-reload
-    arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
-fi
-
-
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 arch-chroot /mnt hwclock --systohc
@@ -264,6 +252,19 @@ default archlinux.conf
 console-mode max
 editor no
 EOF
+
+
+# ZRAM
+if [ $ram_size -le 64 ]; then
+    cat > /mnt/etc/systemd/zram-generator.conf << EOF
+[zram0]
+zram-size = ram * 2
+compression-algorithm = zstd
+swap-priority = 32000
+EOF
+    arch-chroot /mnt systemctl daemon-reload
+    arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
+fi
 
 
 # Pacman configuration
