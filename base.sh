@@ -239,7 +239,7 @@ RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 bootctl install
 
-cat > /mnt/efi/loader/entries/archlinux.conf << EOF
+cat > /mnt/boot/loader/entries/archlinux.conf << EOF
 title   Arch Linux
 initrd  /initramfs-linux-lts.img
 linux   /vmlinuz-linux-lts
@@ -248,7 +248,7 @@ options quiet splash loglevel=3 rd.udev.log_priority=3
 options resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}
 EOF
 
-cat > /mnt/efi/loader/loader.conf << EOF
+cat > /mnt/boot/loader/loader.conf << EOF
 timeout 3
 default archlinux.conf
 console-mode max
