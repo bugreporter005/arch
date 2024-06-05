@@ -100,7 +100,6 @@ initrd  /initramfs-linux-lts.img
 linux   /vmlinuz-linux-lts
 options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw loglevel=3 rd.udev.log_priority=3
 EOF
-#options cryptkey=rootfs:/root/.cryptkey/keyfile.bin
 arch-chroot /mnt cat > /boot/loader/loader.conf << EOF
 timeout 3
 default archlinux.conf
