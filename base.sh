@@ -61,7 +61,7 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
 
     # Recheck the internet connection
     if [ ! ping -c 1 archlinux.org > /dev/null ]; then
-        echo "No internet connection"
+        echo "No internet connection!"
         exit 1
     fi
 fi
