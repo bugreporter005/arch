@@ -93,14 +93,14 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-bootctl install
-arch-chroot /mnt cat > /boot/loader/entries/archlinux.conf << EOF
+arch-chroot /mnt bootctl install
+cat > /mnt/boot/loader/entries/archlinux.conf << EOF
 title   Arch Linux
 initrd  /initramfs-linux-lts.img
 linux   /vmlinuz-linux-lts
 options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw loglevel=3 rd.udev.log_priority=3
 EOF
-arch-chroot /mnt cat > /boot/loader/loader.conf << EOF
+cat > /mnt/boot/loader/loader.conf << EOF
 timeout 3
 default archlinux.conf
 console-mode max
