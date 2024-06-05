@@ -30,9 +30,16 @@ set -e
 clear
 
 
+# Check for loaded Arch Linux
+if [ ! -e /etc/arch-release ]; then
+    echo "This script must be run in Arch Linux!"
+    exit 1
+fi
+
+
 # Verify the UEFI mode
 if [ ! -d "/sys/firmware/efi/efivars" ]; then
-    echo "System is not booted in the UEFI mode"
+    echo "System is not booted in the UEFI mode!"
     exit 1
 fi
 
@@ -42,7 +49,7 @@ setfont $console_font
 
 
 # Check internet connection
-if ! ping -c 1 archlinux.org > /dev/null; then
+if [ ! ping -c 1 archlinux.org > /dev/null ]; then
     # Unlock all wireless devices
     rfkill unblock all    
 
@@ -53,7 +60,7 @@ if ! ping -c 1 archlinux.org > /dev/null; then
     wifi=1    
 
     # Recheck the internet connection
-    if ! ping -c 1 archlinux.org > /dev/null; then
+    if [ ! ping -c 1 archlinux.org > /dev/null ]; then
         echo "No internet connection"
         exit 1
     fi
