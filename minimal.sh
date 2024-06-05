@@ -208,10 +208,6 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 
-# Backup LUKS header
-cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/luks_header.bin
-
-
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
@@ -315,6 +311,11 @@ arch-chroot /mnt chown -R :wheel /.snapshots/
 
 arch-chroot /mnt systemctl enable snapper-timeline.timer.service
 arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
+
+
+# Backup LUKS header
+cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/luks_header.bin
+
 
 # Reboot
 reboot
