@@ -44,14 +44,14 @@ btrfs subvolume create /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,efi,home,swap,.snapshots}
+mkdir /mnt/{boot,home,swap,.snapshots}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/efi
+mount ${efi_part} /mnt/boot
 
 # Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -62,7 +62,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" 
 pacman -Sy archlinux-keyring --noconfirm
 
 # Installation of essential packages
-pacstrap -K /mnt base linux-lts sudo cryptsetup grub efibootmgr grub-btrfs btrfs-progs snapper networkmanager terminus-font neovim
+pacstrap -K /mnt base linux-lts sudo cryptsetup btrfs-progs snapper networkmanager terminus-font neovim
 
 # Generate fstab
 genfstab -U /mnt > /mnt/etc/fstab
@@ -93,10 +93,20 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=discard root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw\"|" /mnt/etc/default/grub
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+bootctl install
+arch-chroot /mnt cat > /boot/loader/entries/archlinux.conf << EOF
+title   Arch Linux
+initrd  /initramfs-linux-lts.img
+linux   /vmlinuz-linux-lts
+options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw loglevel=3 rd.udev.log_priority=3
+EOF
+#options cryptkey=rootfs:/root/.cryptkey/keyfile.bin
+arch-chroot /mnt cat > /boot/loader/loader.conf << EOF
+timeout 3
+default archlinux.conf
+console-mode max
+editor no
+EOF
 
 # Internet
 arch-chroot /mnt systemctl enable NetworkManager.service
