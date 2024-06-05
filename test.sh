@@ -44,14 +44,14 @@ btrfs subvolume create /mnt/@swap
 # Mount the BTRFS subvolumes 
 umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{boot,home,swap,.snapshots}
+mkdir /mnt/{efi,home,swap,.snapshots}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 # Format and mount the EFI partition
 mkfs.fat -F 32 -n EFI ${efi_part}
-mount ${efi_part} /mnt/boot
+mount ${efi_part} /mnt/efi
 
 # Mirror setup and enable parallel download in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -94,13 +94,13 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel grou
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 arch-chroot /mnt bootctl install
-cat > /mnt/boot/loader/entries/archlinux.conf << EOF
+cat > /mnt/efi/loader/entries/archlinux.conf << EOF
 title   Arch Linux
 initrd  /initramfs-linux-lts.img
 linux   /vmlinuz-linux-lts
 options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw loglevel=3 rd.udev.log_priority=3
 EOF
-cat > /mnt/boot/loader/loader.conf << EOF
+cat > /mnt/efi/loader/loader.conf << EOF
 timeout 3
 default archlinux.conf
 console-mode max
