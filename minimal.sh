@@ -111,13 +111,17 @@ chattr +C /mnt/@swap
 
 # Mount the BTRFS subvolumes 
 umount /mnt
+
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
-mkdir /mnt/{efi,home,opt,srv,tmp,var,swap}
+
+mkdir /mnt/{efi,home,opt,srv,tmp,var,swap,.snapshots}
+
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
 mount -o noatime,compress=zstd,commit=120,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
 mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
+mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 
 
@@ -134,6 +138,7 @@ swapon /mnt/swap/swapfile
 
 # Setup mirrors & enable parallel downloading in Pacman
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" /etc/pacman.conf
 
@@ -233,8 +238,9 @@ arch-chroot /mnt mkinitcpio -P
 # User management
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
-arch-chroot /mnt passwd --delete root && passwd --lock root # disable the root user
-sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers # give the wheel group sudo access
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
+
+arch-chroot /mnt passwd --delete root && passwd --lock root
 
 
 # Bootloader
@@ -277,20 +283,25 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 
 
 # Snapper configuration
+umount /mnt/.snapshots
+rm -r /mnt/.snapshots
+
 arch-chroot /mnt snapper -c root create-config /
 arch-chroot /mnt snapper -c home create-config /home
 
-cat > /etc/snapper/configs/ << EOF
-ALLOW_GROUPS="wheel"
+arch-chroot /mnt btrfs subvolume delete /.snapshots
+mkdir /mnt/.snapshots
+mount -a
 
-# limits for timeline cleanup
-TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="5"
-TIMELINE_LIMIT_DAILY="7"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="0"
-TIMELINE_LIMIT_YEARLY="0"
-EOF
+ROOT_SUBVOL_ID=$(arch-chroot /mnt sudo btrfs subvol list / | grep -w 'path @$' | awk '{print $2}')
+arch-chroot /mnt btrfs subvol set-default ${ROOT_SUBVOL_ID} /
+
+sed -i "s|ALLOW_GROUPS=\".*\"|ALLOW_GROUPS=\"wheel\"|" /mnt/etc/snapper/configs/root
+sed -i "s|TIMELINE_LIMIT_HOURLY=\".*\"|TIMELINE_LIMIT_HOURLY=\"5\"|" /mnt/etc/snapper/configs/root
+sed -i "s|TIMELINE_LIMIT_DAILY=\".*\"|TIMELINE_LIMIT_DAILY=\"7\"|" /mnt/etc/snapper/configs/root
+sed -i "s|TIMELINE_LIMIT_WEEKLY=\".*\"|TIMELINE_LIMIT_WEEKLY=\"0\"|" /mnt/etc/snapper/configs/root
+sed -i "s|TIMELINE_LIMIT_MONTHLY=\".*\"|TIMELINE_LIMIT_MONTHLY=\"0\"|" /mnt/etc/snapper/configs/root
+sed -i "s|TIMELINE_LIMIT_YEARLY=\".*\"|TIMELINE_LIMIT_YEARLY=\"0\"|" /mnt/etc/snapper/configs/root
 
 arch-chroot /mnt chown -R :wheel /.snapshots/
 
