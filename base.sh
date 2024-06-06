@@ -262,7 +262,6 @@ if [ $ram_size -le 64 ]; then
 [zram0]
 zram-size = ram * 2
 compression-algorithm = zstd
-swap-priority = 32000
 EOF
 
     arch-chroot /mnt systemctl daemon-reload
