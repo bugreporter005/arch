@@ -260,7 +260,7 @@ EOF
 if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
-zram-size = ram * 2
+zram-size = ram
 compression-algorithm = zstd
 EOF
 
