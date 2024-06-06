@@ -275,7 +275,7 @@ fi
 
 # Pacman configuration
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
---latest 5
+--latest 10
 --protocol https
 --sort rate
 --save /etc/pacman.d/mirrorlist
