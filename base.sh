@@ -30,7 +30,7 @@ set -e
 clear
 
 
-# Check if run in Arch Linux ISO
+# Check if ran in Arch Linux ISO
 if [ ! -e /etc/arch-release ]; then
     echo "This script must be run in Arch Linux!"
     exit 1
