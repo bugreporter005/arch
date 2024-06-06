@@ -270,6 +270,10 @@ EOF
 fi
 
 
+# OOM daemon
+#arch-chroot /mnt systemctl start systemd-oomd.service
+
+
 # Pacman configuration
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
 --latest 5
