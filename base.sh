@@ -203,8 +203,26 @@ arch-chroot /mnt hwclock --systohc
 arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
 arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
 arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
+
 arch-chroot /mnt locale-gen
-echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+
+cat > /mnt/etc/locale.conf << EOF
+LANG=en_US.UTF-8
+LANGUAGE=en_US:en:C:en_GB
+LC_ADDRESS=en_US.UTF-8
+LC_COLLATE=en_US.UTF-8
+LC_CTYPE=en_US.UTF-8
+LC_IDENTIFICATION=en_US.UTF-8
+LC_MEASUREMENT=en_GB.UTF-8
+LC_MESSAGES=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NAME=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_PAPER=en_US.UTF-8
+LC_TELEPHONE=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+EOF
+
 echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
 
