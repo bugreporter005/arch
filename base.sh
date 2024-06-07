@@ -208,7 +208,7 @@ arch-chroot /mnt locale-gen
 
 cat > /mnt/etc/locale.conf << EOF
 LANG=en_US.UTF-8
-LANGUAGE=en_US:en:C:en_GB
+LANGUAGE=en_US:en_GB:en
 LC_ADDRESS=en_US.UTF-8
 LC_COLLATE=en_US.UTF-8
 LC_CTYPE=en_US.UTF-8
