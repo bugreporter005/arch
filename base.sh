@@ -231,35 +231,12 @@ else
 arch-chroot /mnt mkinitcpio -P
 
 
-# User management
+# Manage users
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 arch-chroot /mnt passwd --delete root && passwd --lock root
-
-
-# Bootloader
-ROOT_UUID=$(blkid -o value -s UUID ${root_part})
-RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
-
-bootctl install
-
-cat > /mnt/boot/loader/loader.conf << EOF
-timeout 3
-default archlinux.conf
-console-mode max
-editor no
-EOF
-
-cat > /mnt/boot/loader/entries/archlinux.conf << EOF
-title   Arch Linux
-initrd  /initramfs-linux-lts.img
-linux   /vmlinuz-linux-lts
-options rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw 
-options quiet splash loglevel=3 rd.udev.log_priority=3
-options resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}
-EOF
 
 
 # ZRAM
@@ -279,7 +256,7 @@ fi
 #arch-chroot /mnt systemctl start systemd-oomd.service
 
 
-# Pacman configuration
+# Pacman
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
 --latest 10
 --protocol https
@@ -295,7 +272,7 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
 
-# Snapper configuration
+# Snapper
 umount /mnt/.snapshots
 rm -r /mnt/.snapshots
 
@@ -327,6 +304,19 @@ arch-chroot /mnt chown -R :wheel /.snapshots/
 
 arch-chroot /mnt systemctl enable snapper-timeline.timer.service
 arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
+
+
+# Bootloader
+ROOT_UUID=$(blkid -o value -s UUID ${root_part})
+RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
+
+sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
+
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+chmod 700 /boot
 
 
 # Backup LUKS header
