@@ -179,6 +179,7 @@ pacstrap -K /mnt \
     linux-lts ${linux_firmware} ${microcode} \
     zram-generator \
     cryptsetup \
+    grub efibootmgr grub-btrfs \
     btrfs-progs snapper snap-pac \
     plymouth \
     networkmanager \
