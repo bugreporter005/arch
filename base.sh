@@ -109,6 +109,7 @@ btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@swap
+btrfs subvolume create /mnt/@cryptkey
 
 
 # Disable CoW for temporary files and swap
@@ -122,6 +123,7 @@ umount /mnt
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
 mkdir -p /mnt/{boot/efi,home,opt,srv,tmp,var,swap,.snapshots}
+mkdit -p /mnt/root/.cryptkey
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
@@ -130,6 +132,7 @@ mount -o noatime,compress=no,nodatacow,subvol=@tmp /dev/mapper/${luks_label} /mn
 mount -o noatime,compress=zstd,commit=120,subvol=@var /dev/mapper/${luks_label} /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
+mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 
 
 # Format & mount the EFI partition
@@ -307,12 +310,19 @@ arch-chroot /mnt systemctl enable snapper-timeline.timer.service
 arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
 
 
+# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+chmod 700 /mnt/root/.cryptkey
+head -c 64 /dev/urandom > /mnt/root/.cryptkey/keyfile.bin
+chmod 600 /mnt/root/.cryptkey/keyfile.bin
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/root/.cryptkey/keyfile.bin
+
+
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/root/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
