@@ -115,6 +115,7 @@ btrfs subvolume create /mnt/@cryptkey
 # Disable CoW for temporary files and swap
 chattr +C /mnt/@tmp
 chattr +C /mnt/@swap
+chattr +C /mnt/@cryptkey
 
 
 # Mount the BTRFS subvolumes 
@@ -122,8 +123,7 @@ umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir -p /mnt/{boot/efi,home,opt,srv,tmp,var,swap,.snapshots}
-mkdit -p /mnt/root/.cryptkey
+mkdir -p /mnt/{root/.cryptkey,boot/efi,home,opt,srv,tmp,var,swap,.snapshots}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
