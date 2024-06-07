@@ -79,10 +79,10 @@ parted --script ${drive} \
        mkpart "ROOT" btrfs 513MiB 100%
 
 
-# Encrypt the root partition
+# Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
 echo -n ${luks_passphrase} | cryptsetup --type luks2 \
                                         --cipher aes-xts-plain64 \
-                                        --pbkdf argon2id \
+                                        --pbkdf pbkdf2 \
                                         --key-size 512 \
                                         --hash sha512 \
                                         --sector-size 4096 \
