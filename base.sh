@@ -257,7 +257,7 @@ fi
 #arch-chroot /mnt systemctl start systemd-oomd.service
 
 
-# Pacman
+# Automate mirror update & configure Pacman
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
 --latest 10
 --protocol https
@@ -273,7 +273,7 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
 
-# Snapper
+# Snapper & limits for storing snapshots 
 umount /mnt/.snapshots
 rm -r /mnt/.snapshots
 
