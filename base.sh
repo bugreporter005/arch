@@ -46,7 +46,7 @@ fi
 
 # Check if Secure Boot is enabled in BIOS
 setup_mode=$(bootctl status | grep -E "Secure Boot.*setup" | wc -l)
-if [[ $setup_mode -ne 1 ]] ; then
+if [ $setup_mode -ne 1 ] ; then
     echo "The firmware is not in the setup mode. Please check BIOS."
     exit 1
 fi
