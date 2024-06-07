@@ -30,7 +30,7 @@ set -e
 clear
 
 
-# Check if ran in Arch Linux ISO
+# Check if it's Arch Linux
 if [ ! -e /etc/arch-release ]; then
     echo "This script must be run in Arch Linux!"
     exit 1
@@ -40,6 +40,14 @@ fi
 # Verify the UEFI mode
 if [ ! -d "/sys/firmware/efi/efivars" ]; then
     echo "System is not booted in the UEFI mode!"
+    exit 1
+fi
+
+
+# Check if Secure Boot is enabled
+setup_mode=$(bootctl status | grep -E "Secure Boot.*setup" | wc -l)
+if [[ $setup_mode -ne 1 ]] ; then
+    echo "The firmware is not in the setup mode. Please check BIOS."
     exit 1
 fi
 
