@@ -112,6 +112,7 @@ mkfs.btrfs -L "root" /dev/mapper/${luks_label}
 
 # Configure BTRFS subvolumes
 mount LABEL="root" /mnt
+
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@opt
