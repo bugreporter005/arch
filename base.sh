@@ -146,7 +146,7 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 
-mount ${boot_part} /mnt/boot
+mount LABEL="boot" /mnt/boot
 mount ${efi_part} /mnt/boot/EFI
 
 
