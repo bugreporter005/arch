@@ -53,7 +53,8 @@ parted --script ${drive} \
        mklabel gpt \
        mkpart "EFI" fat32 0% 513MiB \
        set 1 esp on \
-       mkpart "ROOT" btrfs 513MiB 100%
+       mkpart "boot" btrfs 513MiB 1537MiB \
+       mkpart "root" btrfs 1537MiB 100%
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
@@ -71,36 +72,36 @@ echo -n ${luks_passphrase} | cryptsetup --key-file - \
                                         luksOpen ${root_part} ${luks_label}
 
 
+# Create filesystems
+mkfs.fat -F 32 -n "EFI" ${efi_part}
+mkfs.btrfs -L "boot" ${boot_part}
+mkfs.btrfs -L "root" /dev/mapper/${luks_label}
 
-# Format & mount the encrypted root partition
-mkfs.btrfs -L "ROOT" /dev/mapper/${luks_label}
-mount /dev/mapper/${luks_label} /mnt
 
+# Configure BTRFS subvolumes
+mount LABEL="root" /mnt
 
-# Create BTRFS subvolumes
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@cryptkey
 
 
-# Disable CoW for temporary files and swap
+# Disable CoW for the LUKS keyfile
 chattr +C /mnt/@cryptkey
 
 
-# Mount the BTRFS subvolumes 
+# Mount the BTRFS subvolumes and partitions
 umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir -p /mnt/{root/.cryptkey,boot,home}
+mkdir -p /mnt/{root/.cryptkey,boot/EFI,home}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 
-
-# Format & mount the EFI partition
-mkfs.fat -F 32 -n "EFI" ${efi_part}
-mount ${efi_part} /mnt/boot
+mount LABEL="boot" /mnt/boot
+mount ${efi_part} /mnt/boot/EFI
 
 
 # Setup mirrors & enable parallel downloading in Pacman
@@ -192,7 +193,7 @@ ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/root/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
 
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
