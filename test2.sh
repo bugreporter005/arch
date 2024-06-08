@@ -143,10 +143,11 @@ fi
 
 # Install essential packages
 pacstrap -K /mnt \
-    base base-devel \
+    base \
+    sudo \
     linux-lts ${linux_firmware} ${microcode} \
     cryptsetup \
-    grub efibootmgr grub-btrfs \
+    grub efibootmgr \
     btrfs-progs \
     networkmanager \
     terminus-font \
