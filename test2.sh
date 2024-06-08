@@ -72,7 +72,7 @@ echo -n ${luks_passphrase} | cryptsetup --key-file - \
 
 
 # Create filesystems
-mkfs.fat -F 32 -n "EFI" ${efi_part}
+mkfs.fat -F 32 -n EFI ${efi_part}
 mkfs.btrfs -L root /dev/mapper/${luks_label}
 
 
