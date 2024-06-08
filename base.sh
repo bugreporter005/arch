@@ -9,7 +9,8 @@ wifi_passphrase=""
 
 drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
-root_part="${drive}2"
+boot_part="${drive}2"
+root_part="${drive}3"
 luks_label="cryptroot"
 luks_passphrase=""
 
@@ -84,7 +85,8 @@ parted --script ${drive} \
        mklabel gpt \
        mkpart "EFI" fat32 0% 513MiB \
        set 1 esp on \
-       mkpart "ROOT" btrfs 513MiB 100%
+       mkpart "boot" btrfs 513MiB 1537MiB \
+       mkpart "root" btrfs 1537MiB 100%
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
@@ -102,13 +104,14 @@ echo -n ${luks_passphrase} | cryptsetup --key-file - \
                                         luksOpen ${root_part} ${luks_label}
 
 
+# Create filesystems
+mkfs.fat -F 32 -n "EFI" ${efi_part}
+mkfs.btrfs -L "boot" ${boot_part}
+mkfs.btrfs -L "root" /dev/mapper/${luks_label}
 
-# Format & mount the encrypted root partition
-mkfs.btrfs -L "ROOT" /dev/mapper/${luks_label}
-mount /dev/mapper/${luks_label} /mnt
 
-
-# Create BTRFS subvolumes
+# Configure BTRFS subvolumes
+mount LABEL="root" /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@opt
@@ -120,18 +123,18 @@ btrfs subvolume create /mnt/@swap
 btrfs subvolume create /mnt/@cryptkey
 
 
-# Disable CoW for temporary files and swap
+# Disable CoW for temporary files, swap and LUKS keyfile
 chattr +C /mnt/@tmp
 chattr +C /mnt/@swap
 chattr +C /mnt/@cryptkey
 
 
-# Mount the BTRFS subvolumes 
+# Mount the BTRFS subvolumes and partitions
 umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir -p /mnt/{root/.cryptkey,boot,home,opt,srv,tmp,var,swap,.snapshots}
+mkdir -p /mnt/{root/.cryptkey,boot/EFI,home,opt,srv,tmp,var,swap,.snapshots}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=zstd,commit=120,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
@@ -142,10 +145,8 @@ mount -o noatime,compress=zstd,commit=120,subvol=@snapshots /dev/mapper/${luks_l
 mount -o noatime,compress=no,nodatacow,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 
-
-# Format & mount the EFI partition
-mkfs.fat -F 32 -n "EFI" ${efi_part}
-mount ${efi_part} /mnt/boot
+mount ${boot_part} /mnt/boot
+mount ${efi_part} /mnt/boot/EFI
 
 
 # Create & enable a swap file for hibernation
@@ -332,7 +333,7 @@ RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/root/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
 
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
