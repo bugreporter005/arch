@@ -38,7 +38,7 @@ fi
 
 
 # Verify the UEFI mode
-if [ ! -d "/sys/firmware/efi/efivars" ]; then
+if [ ! -d /sys/firmware/efi/efivars ]; then
     echo "System is not booted in the UEFI mode!"
     exit 1
 fi
