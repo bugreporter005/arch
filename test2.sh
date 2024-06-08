@@ -122,38 +122,17 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" 
 pacman -Sy archlinux-keyring --noconfirm
 
 
-# Skip firmware and microcode installation if running in a virtual machine
-if [ systemd-detect-virt == "none" ]; then
-    # CPU vendor detection for microcode installation
-    cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
-    if [ "$cpu_vendor" == "AuthenticAMD" ]; then
-        microcode="amd-ucode"
-    elif [ "$cpu_vendor" == "GenuineIntel" ]; then
-        microcode="intel-ucode"
-    else
-        echo "Unsupported vendor $cpu_vendor"
-        exit 1
-    fi
-    linux_firmware="linux-firmware"
-else
-    microcode=""
-    linux_firmware=""
-fi
-
-
 # Install essential packages
 pacstrap -K /mnt \
     base \
     sudo \
-    linux-lts ${linux_firmware} ${microcode} \
+    linux-lts \
     cryptsetup \
     grub efibootmgr \
     btrfs-progs \
     networkmanager \
     terminus-font \
-    zsh \
-    neovim \
-    git
+    neovim
 
 
 # Generate fstab & remove subvolids to boot into snapshots
@@ -188,15 +167,13 @@ arch-chroot /mnt systemctl enable NetworkManager.service
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
-if [ "$microcode" == "" ]; then
-    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
-else
-    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+
 arch-chroot /mnt mkinitcpio -P
 
 
 # Manage users
-arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
+arch-chroot /mnt useradd -m -G wheel -s /bin/bash ${username}
 echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
