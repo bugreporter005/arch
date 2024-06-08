@@ -57,7 +57,7 @@ parted --script ${drive} \
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
-echo -n ${luks_passphrase} | cryptsetup --type luks1 \
+echo -n ${luks_passphrase} | cryptsetup --type luks2 \
                                         --cipher aes-xts-plain64 \
                                         --pbkdf pbkdf2 \
                                         --key-size 512 \
@@ -92,7 +92,7 @@ umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir -p /mnt/{root/.cryptkey,boot/efi,home}
+mkdir -p /mnt/{root/.cryptkey,boot,home}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
@@ -100,7 +100,7 @@ mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label
 
 # Format & mount the EFI partition
 mkfs.fat -F 32 -n "EFI" ${efi_part}
-mount ${efi_part} /mnt/boot/efi
+mount ${efi_part} /mnt/boot
 
 
 # Setup mirrors & enable parallel downloading in Pacman
@@ -192,7 +192,7 @@ ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/root/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
 
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
