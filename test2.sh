@@ -180,7 +180,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
 chmod 700 /mnt/root/.cryptkey
 head -c 64 /dev/urandom > /mnt/root/.cryptkey/keyfile.bin
-chmod 600 /mnt/root/.cryptkey/keyfile.bin
+chmod 000 /mnt/root/.cryptkey/keyfile.bin
 echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/root/.cryptkey/keyfile.bin
 
 
