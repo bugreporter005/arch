@@ -51,9 +51,9 @@ timedatectl set-ntp true
 # Partition
 parted --script ${drive} \
        mklabel gpt \
-       mkpart EFI fat32 0% 513MiB \
+       mkpart EFI fat32 0% 301MiB \
        set 1 esp on \
-       mkpart root btrfs 513MiB 100%
+       mkpart root btrfs 301MiB 100%
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
