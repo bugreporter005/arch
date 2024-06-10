@@ -57,12 +57,11 @@ parted --script ${drive} \
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
-echo -n ${luks_passphrase} | cryptsetup --type luks2 \
+echo -n ${luks_passphrase} | cryptsetup --type luks1 \
                                         --cipher aes-xts-plain64 \
                                         --pbkdf pbkdf2 \
                                         --key-size 512 \
                                         --hash sha512 \
-                                        --sector-size 4096 \
                                         --use-urandom \
                                         --key-file - \
                                         luksFormat ${root_part}
