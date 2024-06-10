@@ -98,7 +98,7 @@ mkdir -p /mnt/{efi,home,root/.cryptkey}
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
 mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
 
-mount ${efi_part} /mnt/efi
+mount LABEL=EFI /mnt/efi
 
 
 # Setup mirrors & enable parallel downloading in Pacman
