@@ -199,7 +199,7 @@ chmod 700 /mnt/boot
 
 
 # Backup LUKS header
-cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/luks_header.bin
+cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/root.img
 
 
 # Reboot
