@@ -226,7 +226,9 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
 # Network
 echo "${hostname}" > /mnt/etc/hostname
+
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
+
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
@@ -235,6 +237,7 @@ arch-chroot /mnt systemctl enable NetworkManager.service
 chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
+
 echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
 
 
@@ -246,6 +249,7 @@ if [ "$microcode" == "" ]; then
     sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 else
     sed -i "s/HOOKS=(.*)/HOOKS=(base systemd plymouth autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+
 arch-chroot /mnt mkinitcpio -P
 
 
@@ -271,7 +275,7 @@ fi
 
 
 # OOM daemon
-#arch-chroot /mnt systemctl start systemd-oomd.service
+arch-chroot /mnt systemctl enable systemd-oomd.service
 
 
 # Automate mirror update & configure Pacman
@@ -336,6 +340,8 @@ arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloa
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
+
+arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
 # Backup LUKS header
