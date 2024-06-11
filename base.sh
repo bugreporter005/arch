@@ -130,7 +130,7 @@ chattr +C /mnt/@cryptkey
 # Mount the BTRFS subvolumes and partitions
 umount /mnt
 
-mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
+mount -o noatime,compress=zstd,commit=120,discard=async,,subvol=@ /dev/mapper/${luks_label} /mnt
 
 mkdir -p /mnt/{.cryptkey,efi,home,opt,srv,tmp,var,swap,.snapshots}
 
