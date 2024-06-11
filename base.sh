@@ -130,18 +130,18 @@ chattr +C /mnt/@cryptkey
 # Mount the BTRFS subvolumes and partitions
 umount /mnt
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@ /dev/mapper/${luks_label} /mnt
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@ /dev/mapper/${luks_label} /mnt
 
 mkdir -p /mnt/{.cryptkey,efi,home,opt,srv,tmp,var,swap,.snapshots}
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@var /dev/mapper/${luks_label} /mnt/var
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home /dev/mapper/${luks_label} /mnt/home
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@opt /dev/mapper/${luks_label} /mnt/opt
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@srv /dev/mapper/${luks_label} /mnt/srv
+mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@tmp /dev/mapper/${luks_label} /mnt/tmp
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@var /dev/mapper/${luks_label} /mnt/var
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@snapshots /dev/mapper/${luks_label} /mnt/.snapshots
+mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@swap /dev/mapper/${luks_label} /mnt/swap
+mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
