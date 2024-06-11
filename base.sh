@@ -318,9 +318,9 @@ arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
 chmod 700 /mnt/.cryptkey
-head -c 64 /dev/urandom > /mnt/.cryptkey/keyfile.bin
-chmod 000 /mnt/.cryptkey/keyfile.bin
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/keyfile.bin
+head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
+chmod 000 /mnt/.cryptkey/root.key
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
 
 
 # Bootloader
@@ -328,7 +328,7 @@ ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/keyfile.bin quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
 sed -i "s|GRUB_PRELOAD_MODULES=\".*\"|GRUB_PRELOAD_MODULES=\"cryptodisk luks2 btrfs part_gpt pbkdf2 gcry_rijndael gcry_sha512\"|" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
