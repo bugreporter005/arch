@@ -93,10 +93,10 @@ umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
 
-mkdir -p /mnt/{efi,home,root/.cryptkey}
+mkdir -p /mnt/{efi,home,.cryptkey}
 
 mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/root/.cryptkey
+mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
@@ -178,20 +178,20 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 
 
 # Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
-chmod 700 /mnt/root/.cryptkey
-head -c 64 /dev/urandom > /mnt/root/.cryptkey/keyfile.bin
-chmod 000 /mnt/root/.cryptkey/keyfile.bin
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/root/.cryptkey/keyfile.bin
+chmod 700 /mnt/.cryptkey
+head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
+chmod 000 /mnt/.cryptkey/root.key
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
 
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID ${root_part})
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw cryptkey=rootfs:/root/.cryptkey/keyfile.bin loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
 sed -i "s|GRUB_PRELOAD_MODULES=\".*\"|GRUB_PRELOAD_MODULES=\"cryptodisk luks2 btrfs part_gpt pbkdf2 gcry_rijndael gcry_sha512\"|" /mnt/etc/default/grub
 
-arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --modules="luks2"
+arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
