@@ -154,8 +154,16 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 
+# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
+chmod 700 /mnt/.cryptkey
+head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
+chmod 000 /mnt/.cryptkey/root.key
+echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
+
+
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=(.*)/FILES=(/.cryptkey/root.key)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 
@@ -175,13 +183,6 @@ sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
-
-
-# Embed a keyfile in initramfs to avoid having to enter the encryption passphrase twice
-chmod 700 /mnt/.cryptkey
-head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
-chmod 000 /mnt/.cryptkey/root.key
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
 
 
 # Bootloader
