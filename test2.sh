@@ -91,12 +91,12 @@ chattr +C /mnt/@cryptkey
 # Mount the BTRFS subvolumes and the EFI partition
 umount /mnt
 
-mount -o noatime,compress=zstd,commit=120,subvol=@ /dev/mapper/${luks_label} /mnt
+mount -o noatime,compress=zstd,commit=120,discard=async,subvol=@ /dev/mapper/${luks_label} /mnt
 
 mkdir -p /mnt/{efi,home,.cryptkey}
 
-mount -o noatime,compress=zstd,commit=120,subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o noatime,compress=no,nodatacow,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
+mount -o noatime,compress=zstd,commit=120,discard=async,subvol=@home /dev/mapper/${luks_label} /mnt/home
+mount -o noatime,compress=no,nodatacow,discard=async,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
