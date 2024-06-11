@@ -80,6 +80,8 @@ timedatectl set-ntp true
 
 
 # Partition
+sgdisk --zap-all ${drive}
+
 parted --script ${drive} \
        mklabel gpt \
        mkpart EFI fat32 0% 301MiB \
@@ -87,7 +89,7 @@ parted --script ${drive} \
        mkpart root btrfs 301MiB 100%
 
 
-# Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
+# Encrypt the root partition (use '--pbkdf argon2id' for GRUB 2.13+)
 echo -n ${luks_passphrase} | cryptsetup --type luks2 \
                                         --cipher aes-xts-plain64 \
                                         --pbkdf pbkdf2 \
