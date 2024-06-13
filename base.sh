@@ -62,9 +62,9 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
     rfkill unblock all    
 
     # Connect to the WIFI network
-    iwctl --passphrase ${wifi_passphrase} \
-          station ${wifi_interface} \
-          connect ${wifi_ssid} # use 'connect-hidden' for hidden networks
+    iwctl --passphrase $wifi_passphrase \
+          station $wifi_interface \
+          connect $wifi_ssid # use 'connect-hidden' for hidden networks
     wifi=1    
 
     # Recheck the internet connection
@@ -80,9 +80,9 @@ timedatectl set-ntp true
 
 
 # Partition
-sgdisk --zap-all ${drive}
+sgdisk --zap-all $drive
 
-parted --script ${drive} \
+parted --script $drive \
        mklabel gpt \
        mkpart EFI fat32 0% 301MiB \
        set 1 esp on \
@@ -90,22 +90,22 @@ parted --script ${drive} \
 
 
 # Encrypt the root partition (use '--pbkdf argon2id' for GRUB 2.13+)
-echo -n ${luks_passphrase} | cryptsetup --type luks2 \
-                                        --cipher aes-xts-plain64 \
-                                        --pbkdf pbkdf2 \
-                                        --key-size 512 \
-                                        --hash sha512 \
-                                        --sector-size 4096 \
-                                        --use-urandom \
-                                        --key-file - \
-                                        luksFormat ${root_part}
+echo -n $luks_passphrase | cryptsetup --type luks2 \
+                                      --cipher aes-xts-plain64 \
+                                      --pbkdf pbkdf2 \
+                                      --key-size 512 \
+                                      --hash sha512 \
+                                      --sector-size 4096 \
+                                      --use-urandom \
+                                      --key-file - \
+                                      luksFormat ${root_part}
 
-echo -n ${luks_passphrase} | cryptsetup --key-file - \
-                                        luksOpen ${root_part} ${luks_label}
+echo -n $luks_passphrase | cryptsetup --key-file - \
+                                      luksOpen ${root_part} ${luks_label}
 
 
 # Create filesystems
-mkfs.fat -F 32 -n EFI ${efi_part}
+mkfs.fat -F 32 -n EFI $efi_part
 mkfs.btrfs -L root /dev/mapper/${luks_label}
 
 
@@ -187,7 +187,7 @@ fi
 # Install essential packages
 pacstrap -K /mnt \
     base base-devel \
-    linux-lts ${linux_firmware} ${microcode} \
+    linux-lts $linux_firmware $microcode \
     zram-generator \
     cryptsetup \
     grub efibootmgr grub-btrfs \
@@ -227,7 +227,7 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
 
 # Network
-echo "${hostname}" > /mnt/etc/hostname
+echo $hostname > /mnt/etc/hostname
 
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
@@ -240,7 +240,7 @@ chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
 
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
+echo -n $luks_passphrase | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.key
 
 
 # Initramfs
@@ -257,7 +257,7 @@ arch-chroot /mnt mkinitcpio -P
 
 # Manage users
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
-echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
+echo "$username:$user_passphrase" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 arch-chroot /mnt passwd --delete root && passwd --lock root
@@ -308,7 +308,7 @@ mkdir /mnt/.snapshots
 arch-chroot /mnt mount -a
 
 ROOT_SUBVOL_ID=$(arch-chroot /mnt btrfs subvol list / | grep -w 'path @$' | awk '{print $2}')
-arch-chroot /mnt btrfs subvol set-default ${ROOT_SUBVOL_ID} /
+arch-chroot /mnt btrfs subvol set-default $ROOT_SUBVOL_ID /
 
 sed -i "s|ALLOW_GROUPS=\".*\"|ALLOW_GROUPS=\"wheel\"|" /mnt/etc/snapper/configs/root
 sed -i "s|TIMELINE_LIMIT_HOURLY=\".*\"|TIMELINE_LIMIT_HOURLY=\"5\"|" /mnt/etc/snapper/configs/root
@@ -331,7 +331,7 @@ arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
 
 
 # Bootloader
-ROOT_UUID=$(blkid -o value -s UUID ${root_part})
+ROOT_UUID=$(blkid -o value -s UUID $root_part)
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
@@ -347,7 +347,7 @@ arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
 # Backup LUKS header
-cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/root.img
+cryptsetup luksHeaderBackup $root_part --header-backup-file /mnt/home/${username}/root.img
 
 
 # Reboot
