@@ -117,7 +117,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" 
 
 
 # Update keyrings to prevent packages failing to install
-pacman -Sy archlinux-keyring --noconfirm
+pacman -Sy --needed --noconfirm archlinux-keyring
 
 
 # Install essential packages
