@@ -104,7 +104,11 @@ mount LABEL=EFI /mnt/efi
 
 
 # Setup mirrors
-reflector --country $(curl https://ipapi.co/country_code) --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+reflector --country $(curl https://ipapi.co/country_code) \
+          --latest 5 \
+          --protocol https \
+          --sort rate \
+          --save /etc/pacman.d/mirrorlist
 
 
 # Enable parallel downloading & disable download timeout in Pacman
