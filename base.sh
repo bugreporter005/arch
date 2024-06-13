@@ -290,8 +290,8 @@ arch-chroot /mnt systemctl enable systemd-oomd.service
 
 # Automate mirror update & configure Pacman
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
---country $country_code
 --latest 10
+--age 12
 --protocol https
 --sort rate
 --save /etc/pacman.d/mirrorlist
