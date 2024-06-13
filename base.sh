@@ -155,7 +155,13 @@ swapon /mnt/swap/swapfile
 
 
 # Setup mirrors
-reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+country_code=$(curl https://ipapi.co/country_code)
+
+reflector --country $country_code \
+          --latest 5 \
+          --protocol https \
+          --sort rate \
+          --save /etc/pacman.d/mirrorlist
 
 
 # Enable parallel downloading & disable download timeout in Pacman
@@ -209,7 +215,8 @@ sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 
 # Set timezone based on IP address
-arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
+timezone=$(curl https://ipapi.co/timezone) 
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 arch-chroot /mnt hwclock --systohc
 
 
@@ -284,6 +291,7 @@ arch-chroot /mnt systemctl enable systemd-oomd.service
 
 # Automate mirror update & configure Pacman
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
+--country $country_code
 --latest 10
 --protocol https
 --sort rate
