@@ -157,8 +157,8 @@ swapon /mnt/swap/swapfile
 # Setup mirrors
 country_code=$(curl https://ipapi.co/country_code)
 
-reflector --country $country_code \
-          --latest 5 \
+reflector --latest 10 \
+          --age 12 \
           --protocol https \
           --sort rate \
           --save /etc/pacman.d/mirrorlist
