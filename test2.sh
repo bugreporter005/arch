@@ -49,7 +49,7 @@ timedatectl set-ntp true
 
 
 # Partition
-parted --script ${drive} \
+parted --script $drive \
        mklabel gpt \
        mkpart EFI fat32 0% 301MiB \
        set 1 esp on \
@@ -57,22 +57,22 @@ parted --script ${drive} \
 
 
 # Encrypt the root partition (use 'argon2id' for GRUB 2.13+)
-echo -n ${luks_passphrase} | cryptsetup --type luks2 \
-                                        --cipher aes-xts-plain64 \
-                                        --pbkdf pbkdf2 \
-                                        --key-size 512 \
-                                        --hash sha512 \
-                                        --sector-size 4096 \
-                                        --use-urandom \
-                                        --key-file - \
-                                        luksFormat ${root_part}
+echo -n $luks_passphrase | cryptsetup --type luks2 \
+                                      --cipher aes-xts-plain64 \
+                                      --pbkdf pbkdf2 \
+                                      --key-size 512 \
+                                      --hash sha512 \
+                                      --sector-size 4096 \
+                                      --use-urandom \
+                                      --key-file - \
+                                      luksFormat ${root_part}
 
-echo -n ${luks_passphrase} | cryptsetup --key-file - \
-                                        luksOpen ${root_part} ${luks_label}
+echo -n $luks_passphrase | cryptsetup --key-file - \
+                                      luksOpen ${root_part} ${luks_label}
 
 
 # Create filesystems
-mkfs.fat -F 32 -n EFI ${efi_part}
+mkfs.fat -F 32 -n EFI $efi_part
 mkfs.btrfs -L root /dev/mapper/${luks_label}
 
 
@@ -148,7 +148,7 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 
 
 # Network
-echo "${hostname}" > /mnt/etc/hostname
+echo $hostname > /mnt/etc/hostname
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
@@ -158,7 +158,7 @@ arch-chroot /mnt systemctl enable NetworkManager.service
 chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
-echo -n ${luks_passphrase} | cryptsetup luksAddKey ${root_part} /mnt/.cryptkey/root.key
+echo -n $luks_passphrase | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.key
 
 
 # Initramfs
@@ -172,7 +172,7 @@ arch-chroot /mnt mkinitcpio -P
 
 # Manage users
 arch-chroot /mnt useradd -m -G wheel -s /bin/bash ${username}
-echo "${username}:${user_passphrase}" | arch-chroot /mnt chpasswd
+echo "$username:$user_passphrase" | arch-chroot /mnt chpasswd
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 arch-chroot /mnt passwd --delete root && passwd --lock root
@@ -186,7 +186,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 
 
 # Bootloader
-ROOT_UUID=$(blkid -o value -s UUID ${root_part})
+ROOT_UUID=$(blkid -o value -s UUID $root_part)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
@@ -199,7 +199,7 @@ chmod 700 /mnt/boot
 
 
 # Backup LUKS header
-cryptsetup luksHeaderBackup ${root_part} --header-backup-file /mnt/home/${username}/root.img
+cryptsetup luksHeaderBackup $root_part --header-backup-file /mnt/home/${username}/root.img
 
 
 # Reboot
