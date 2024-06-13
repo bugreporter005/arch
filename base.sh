@@ -154,9 +154,11 @@ btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 
-# Setup mirrors & enable parallel downloading in Pacman
+# Setup mirrors
 reflector --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
+
+# Enable parallel downloading & disable download timeout in Pacman
 sed -i "/ParallelDownloads/s/^#//g" /etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nDisableDownloadTimeout/" /etc/pacman.conf
 
