@@ -104,8 +104,8 @@ mount LABEL=EFI /mnt/efi
 
 
 # Setup mirrors
-reflector --country $(curl https://ipapi.co/country_code) \
-          --latest 5 \
+reflector --latest 5 \
+          --age 12 \
           --protocol https \
           --sort rate \
           --save /etc/pacman.d/mirrorlist
