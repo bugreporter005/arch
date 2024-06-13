@@ -138,7 +138,8 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 
 # Set timezone based on IP address
-arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
+timezone=$(curl https://ipapi.co/timezone) 
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 arch-chroot /mnt hwclock --systohc
 
 
