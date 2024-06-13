@@ -197,7 +197,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 ROOT_UUID=$(blkid -o value -s UUID $root_part)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key loglevel=3 rd.udev.log_priority=3\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3 root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key\"|" /mnt/etc/default/grub
 sed -i "s|GRUB_PRELOAD_MODULES=\".*\"|GRUB_PRELOAD_MODULES=\"cryptodisk luks2 btrfs part_gpt pbkdf2 gcry_rijndael gcry_sha512\"|" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
