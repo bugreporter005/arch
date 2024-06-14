@@ -127,7 +127,7 @@ pacman -Sy archlinux-keyring --noconfirm
 # Virtual machine detection for package exclusions
 if [ systemd-detect-virt == "none" ]; then
     # CPU vendor detection for microcode installation
-    cpu_vendor=$(lscpu | grep -e '^Vendor ID' | awk '{print $3}')
+    cpu_vendor=$(lscpu | awk '/^Vendor ID/{print $3}')
     if [ "$cpu_vendor" == "AuthenticAMD" ]; then
         microcode="amd-ucode"
     elif [ "$cpu_vendor" == "GenuineIntel" ]; then
