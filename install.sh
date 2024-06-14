@@ -19,11 +19,11 @@ fi
 
 # Verify the firmware interface
 if [ -d /sys/firmware/efi/efivars ]; then
-    fimrware="UEFI"
+    firmware="UEFI"
 else
     firmware="BIOS"
 fi
-echo "$fimrware mode is detected."
+echo "$firmware mode is detected."
 
 
 # Check internet connection
