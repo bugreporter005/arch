@@ -35,3 +35,25 @@ else
     echo "Internet connection is down!"
     exit 1
 fi
+
+
+# Update the system clock
+timedatectl set-ntp true
+
+
+# Partition
+sgdisk --zap-all $drive
+
+if [ $firmware == "UEFI" ]; then
+    parted --script $drive \
+           mklabel gpt \
+           mkpart EFI fat32 0% 301MiB \
+           set 1 esp on \
+           mkpart root btrfs 301MiB 100%
+else
+    parted --script $drive \
+           mklabel gpt \
+           mkpart bios_boot 0% 1MiB \
+           set 1 bios_grub on \
+           mkpart root btrfs 1MiB 100%
+fi
