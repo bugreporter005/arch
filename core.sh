@@ -341,7 +341,7 @@ chmod 700 /mnt/boot
 arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
-# Disable passwordless sudo access for the new user
+# Remove passwordless sudo access from the new user
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
@@ -384,7 +384,7 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 
 
 # Backup LUKS header
-cryptsetup luksHeaderBackup $root_part --header-backup-file /mnt/home/${username}/root.img
+arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /home/${username}/root.img
 
 
 # Reboot
