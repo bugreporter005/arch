@@ -319,10 +319,6 @@ arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
                                   makepkg -si --noconfirm"
  
 
-# Restore Pacman wrapper
-mv /mnt/usr/local/bin/pacman.disable /mnt/usr/local/bin/pacman
-
-
 # Bootloader
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -Sy grub-improved-luks2-git
 
@@ -339,6 +335,10 @@ arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 chmod 700 /mnt/boot
 
 arch-chroot /mnt systemctl enable grub-btrfsd.service
+
+
+# Restore Pacman wrapper
+mv /mnt/usr/local/bin/pacman.disable /mnt/usr/local/bin/pacman
 
 
 # Remove passwordless sudo access from the new user
