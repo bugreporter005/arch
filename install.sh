@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+# Abort the script if there's any error
 set -e
 
 
