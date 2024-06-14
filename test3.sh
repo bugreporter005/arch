@@ -54,8 +54,6 @@ timedatectl set-ntp true
 
 
 # Partition
-sgdisk --zap-all $drive
-
 parted --script $drive \
        mklabel gpt \
        mkpart EFI fat32 0% 301MiB \
