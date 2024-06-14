@@ -7,7 +7,7 @@ clear
 
 # Set a custom TTY font
 setfont ter-v18n
-echo "Replace the default TTY font with 'ter-v18n'."
+echo "Set 'ter-v18n' as a new TTY font."
 
 
 # Check the OS
@@ -43,7 +43,7 @@ timedatectl set-ntp true
 
 # Partition
 sgdisk --zap-all $drive
-echo "All partitions are deleted."
+echo "Removed all existing partitions."
 
 if [ $firmware == "UEFI" ]; then
     parted --script $drive \
@@ -60,7 +60,7 @@ else
            mkpart root btrfs 1MiB 100% \
            > /dev/null
 fi
-echo "Partitioned $drive with a $firmware layout."
+echo "Partitioned '${drive}' with a $firmware layout."
 
 
 # Encryption
