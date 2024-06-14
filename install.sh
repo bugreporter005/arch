@@ -43,17 +43,40 @@ timedatectl set-ntp true
 
 # Partition
 sgdisk --zap-all $drive
+echo "All partitions are deleted."
 
 if [ $firmware == "UEFI" ]; then
     parted --script $drive \
            mklabel gpt \
            mkpart EFI fat32 0% 301MiB \
            set 1 esp on \
-           mkpart root btrfs 301MiB 100%
+           mkpart root btrfs 301MiB 100% \
+           > /dev/null
 else
     parted --script $drive \
            mklabel gpt \
            mkpart bios_boot 0% 1MiB \
            set 1 bios_grub on \
-           mkpart root btrfs 1MiB 100%
+           mkpart root btrfs 1MiB 100% \
+           > /dev/null
 fi
+echo "Partitioned $drive with a $firmware layout."
+
+
+# Encryption
+echo -n $luks_passphrase | cryptsetup --type luks2 \
+                                      --cipher aes-xts-plain64 \
+                                      --pbkdf argon2id \
+                                      --key-size 512 \
+                                      --hash sha512 \
+                                      --sector-size 4096 \
+                                      --use-urandom \
+                                      --key-file - \
+                                      luksFormat ${root_part} \
+                                      > /dev/null
+echo "Encrypted the root partition."
+
+echo -n $luks_passphrase | cryptsetup --key-file - \
+                                      luksOpen ${root_part} ${luks_label} \
+                                      > /dev/null
+echo "Openned the encrypted root partition."
