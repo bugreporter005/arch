@@ -303,8 +303,8 @@ sed -i "s|TIMELINE_LIMIT_YEARLY=\".*\"|TIMELINE_LIMIT_YEARLY=\"0\"|" /mnt/etc/sn
 
 arch-chroot /mnt chown -R :wheel /.snapshots/
 
-arch-chroot /mnt systemctl enable snapper-timeline.timer.service
-arch-chroot /mnt systemctl enable snapper-cleanup.timer.service
+arch-chroot /mnt systemctl enable snapper-timeline.timer
+arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
 # Temporarly disable Pacman wrapper so that no warning is issued
