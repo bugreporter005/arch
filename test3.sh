@@ -96,12 +96,12 @@ chattr +C /mnt/@cryptkey
 # Mount the BTRFS subvolumes and partitions
 umount /mnt
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@ /dev/mapper/${luks_label} /mnt
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@ LABEL=root /mnt
 
 mkdir -p /mnt/{efi,home,.cryptkey}
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home /dev/mapper/${luks_label} /mnt/home
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey /dev/mapper/${luks_label} /mnt/.cryptkey
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home LABEL=root /mnt/home
+mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey LABEL=root /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
@@ -136,7 +136,7 @@ pacstrap -K /mnt \
 
 
 # Generate fstab & remove subvolids to boot into snapshots
-genfstab -U /mnt > /mnt/etc/fstab
+genfstab -L /mnt > /mnt/etc/fstab
 
 
 # Set timezone based on IP address
