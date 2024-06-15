@@ -98,10 +98,10 @@ echo -n "$luks_passphrase" | cryptsetup --type luks2 \
                                         --sector-size 4096 \
                                         --use-urandom \
                                         --key-file - \
-                                        luksFormat "$root_part"
+                                        luksFormat $root_part
 
 echo -n "$luks_passphrase" | cryptsetup --key-file - \
-                                        luksOpen "$root_part" "$luks_label"
+                                        luksOpen $root_part $luks_label
 
 
 # Create filesystems
