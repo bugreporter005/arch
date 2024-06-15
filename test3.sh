@@ -194,10 +194,10 @@ echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
 # Install an AUR helper of your choice
-arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
-                                  cd /tmp/paru.$$ && \
-                                  curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                  makepkg -si --noconfirm"
+arch-chroot -u $username /mnt /bin/bash -c "mkdir /tmp/paru.$$ && \
+                                            cd /tmp/paru.$$ && \
+                                            curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                            makepkg -si --noconfirm"
  
 
 # Bootloader
