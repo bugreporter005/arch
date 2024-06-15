@@ -70,10 +70,10 @@ echo -n "$luks_passphrase" | cryptsetup --type luks2 \
                                         --sector-size 4096 \
                                         --use-urandom \
                                         --key-file - \
-                                        luksFormat $root_part
+                                        luksFormat "$root_part"
 
 echo -n "$luks_passphrase" | cryptsetup --key-file - \
-                                        luksOpen $root_part $luks_label
+                                        luksOpen "$root_part" "$luks_label"
 
 
 # Create filesystems
@@ -168,7 +168,7 @@ chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
 
-echo -n "$luks_passphrase" | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.key
+echo -n "$luks_passphrase" | cryptsetup luksAddKey "$root_part" /mnt/.cryptkey/root.key
 
 
 # Initramfs
