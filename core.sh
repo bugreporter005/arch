@@ -307,10 +307,6 @@ arch-chroot /mnt systemctl enable snapper-timeline.timer
 arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
-# Temporarly disable Pacman wrapper so that no warning is issued
-mv /mnt/usr/local/bin/pacman /mnt/usr/local/bin/pacman.disable
-
-
 # Install an AUR helper of your choice
 arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
                                   cd /tmp/paru.$$ && \
@@ -334,10 +330,6 @@ arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 chmod 700 /mnt/boot
 
 arch-chroot /mnt systemctl enable grub-btrfsd.service
-
-
-# Restore Pacman wrapper
-mv /mnt/usr/local/bin/pacman.disable /mnt/usr/local/bin/pacman
 
 
 # Remove passwordless sudo access from the new user
