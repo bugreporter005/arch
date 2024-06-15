@@ -151,7 +151,7 @@ mount LABEL=EFI /mnt/efi
 # Create & enable a swap file for hibernation
 RAM_SIZE=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
-swapon -L swap /mnt/swap/swapfile
+swapon /mnt/swap/swapfile
 
 
 # Setup mirrors
