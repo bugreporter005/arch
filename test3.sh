@@ -193,10 +193,6 @@ arch-chroot /mnt passwd --delete root && passwd --lock root
 echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
-# Temporarly disable Pacman wrapper so that no warning is issued
-mv /mnt/usr/local/bin/pacman /mnt/usr/local/bin/pacman.disable
-
-
 # Install an AUR helper of your choice
 arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
                                   cd /tmp/paru.$$ && \
@@ -216,10 +212,6 @@ arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloa
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 chmod 700 /mnt/boot
-
-
-# Restore Pacman wrapper
-mv /mnt/usr/local/bin/pacman.disable /mnt/usr/local/bin/pacman
 
 
 # Remove passwordless sudo access from the new user
