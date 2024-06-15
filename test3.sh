@@ -173,7 +173,7 @@ echo -n $luks_passphrase | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.
 
 # Initramfs
 sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/FILES=(.*)/FILES=(/.cryptkey/root.key)/" /mnt/etc/mkinitcpio.conf
+sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/root.key)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
 sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
 
