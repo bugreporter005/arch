@@ -319,7 +319,7 @@ arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
  
 
 # Bootloader
-HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -Sy grub-improved-luks2-git
+HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S grub-improved-luks2-git
 
 ROOT_UUID=$(blkid -o value -s UUID $root_part)
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
