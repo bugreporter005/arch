@@ -151,7 +151,7 @@ mount LABEL=EFI /mnt/efi
 # Create & enable a swap file for hibernation
 RAM_SIZE=$(( ( $(free -m | awk '/^Mem:/{print $2}') + 1023 ) / 1024 ))
 btrfs filesystem mkswapfile --size ${RAM_SIZE}G --uuid clear /mnt/swap/swapfile
-swapon /mnt/swap/swapfile
+swapon -L swap /mnt/swap/swapfile
 
 
 # Setup mirrors
@@ -207,7 +207,7 @@ pacstrap -K /mnt \
 
 
 # Generate fstab & remove subvolids to boot into snapshots
-genfstab -U /mnt > /mnt/etc/fstab
+genfstab -L /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
 
