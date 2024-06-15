@@ -308,10 +308,10 @@ arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
 # Install an AUR helper of your choice
-arch-chroot -u $username /mnt -c "mkdir /tmp/paru.$$ && \
-                                  cd /tmp/paru.$$ && \
-                                  curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                  makepkg -si --noconfirm"
+arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
+                                           cd /tmp/paru.$$ && \
+                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                           makepkg -si --noconfirm"
  
 
 # Bootloader
