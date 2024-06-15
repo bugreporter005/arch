@@ -90,18 +90,18 @@ parted --script $drive \
 
 
 # Encrypt the root partition
-echo -n $luks_passphrase | cryptsetup --type luks2 \
-                                      --cipher aes-xts-plain64 \
-                                      --pbkdf argon2id \
-                                      --key-size 512 \
-                                      --hash sha512 \
-                                      --sector-size 4096 \
-                                      --use-urandom \
-                                      --key-file - \
-                                      luksFormat ${root_part}
+echo -n "$luks_passphrase" | cryptsetup --type luks2 \
+                                        --cipher aes-xts-plain64 \
+                                        --pbkdf argon2id \
+                                        --key-size 512 \
+                                        --hash sha512 \
+                                        --sector-size 4096 \
+                                        --use-urandom \
+                                        --key-file - \
+                                        luksFormat "$root_part"
 
-echo -n $luks_passphrase | cryptsetup --key-file - \
-                                      luksOpen ${root_part} ${luks_label}
+echo -n "$luks_passphrase" | cryptsetup --key-file - \
+                                        luksOpen "$root_part" "$luks_label"
 
 
 # Create filesystems
@@ -245,7 +245,7 @@ chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
 
-echo -n $luks_passphrase | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.key
+echo -n "$luks_passphrase" | cryptsetup luksAddKey "$root_part" /mnt/.cryptkey/root.key
 
 
 # Initramfs
