@@ -76,13 +76,13 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
 fi
 
 
-# Update the system clock
-timedatectl set-ntp true
-
-
 # -------------------------------------------------------------------------------------------------
 # Installation
 # -------------------------------------------------------------------------------------------------
+
+
+# Update the system clock
+timedatectl set-ntp true
 
 
 # Partition
