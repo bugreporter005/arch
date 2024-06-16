@@ -260,9 +260,10 @@ else
 arch-chroot /mnt mkinitcpio -P
 
 
-# Create a new user
+# Create a new user and give it sudo permission
 arch-chroot /mnt useradd -m -G wheel -s /bin/zsh ${username}
 echo "$username:$user_passphrase" | arch-chroot /mnt chpasswd
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 
 # Disable the root user
@@ -365,7 +366,7 @@ arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /ho
 # -------------------------------------------------------------------------------------------------
 
 
-# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
+# [⚠️] Temporarily give passwordless sudo access for the new user to install and use an AUR helper
 echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
@@ -425,12 +426,8 @@ if [ -n $gpu_driver ]; then
 fi
 
 
-# Remove passwordless sudo access from the new user
+# [⚠️] Remove passwordless sudo access from the new user
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
-
-
-# Give the wheel group sudo access
-sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 
 # Reboot
