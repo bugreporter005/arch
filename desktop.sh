@@ -425,13 +425,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     exfatprogs \
     openssh \
     btrfs-assistant \
-    pipewire pipewire-pulse pipewire-alsa pipewire-jack \
-    xorg-wayland \
-    plasma-desktop sddm konsole dolphin dolphin-plugin ark ffmpegthumbs \
-    kdeconnect kwrite gwenview kcalc okular spectacle elisa dragon fuse2 \
-    plasma-nm plasma-pa kpipewire breeze-gtk kde-gtk-config kdeplasma-addons \
-    kscreen xdg-desktop-portal xdg-desktop-portal-kde flatpak-kcm kgamma \
-    kinfocenter kglobalacceld kmenuedit \
+    pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
     docker \
     flatpak \
@@ -446,6 +440,12 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager \
     element-desktop
+
+arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
+                                           kwallet kwallet-pam ksshaskpass \
+                                           breeze-plymouth \
+                                           discover \
+                                           oxygen oxygen-sounds
 
 
 # [⚠️] Detect GPU(s) and install video driver(s)
