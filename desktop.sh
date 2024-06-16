@@ -412,12 +412,6 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 
 
 # [⚠️] Install user packages
-arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
-                                           kwallet kwallet-pam ksshaskpass \
-                                           breeze-plymouth \
-                                           discover \
-                                           oxygen oxygen-sounds
-
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
     git \
     stow \
@@ -446,6 +440,12 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager \
     schildichat-desktop-bin
+
+arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
+                                           kwallet kwallet-pam ksshaskpass \
+                                           breeze-plymouth \
+                                           discover \
+                                           oxygen oxygen-sounds
 
 
 # [⚠️] Detect GPU(s) and install video driver(s)
