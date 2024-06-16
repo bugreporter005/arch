@@ -439,7 +439,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     obs-studio \
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager \
-    element-desktop
+    schildichat-desktop-bin
 
 arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
                                            kwallet kwallet-pam ksshaskpass \
