@@ -308,7 +308,7 @@ sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 arch-chroot /mnt passwd --delete root && passwd --lock root
 
 
-# Snapper & limits for storing snapshots 
+# Configure Snapper 
 umount /mnt/.snapshots
 rm -r /mnt/.snapshots
 
