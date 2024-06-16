@@ -468,7 +468,7 @@ fi
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
-# Enable the display manager to start KDE Plamsa after reboot
+# Enable Systemd services
 arch-chroot /mnt systemctl enable sddm.service
 
 
