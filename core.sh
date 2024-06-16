@@ -366,7 +366,7 @@ arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /ho
 # -------------------------------------------------------------------------------------------------
 
 
-# [⚠️] Temporarily give passwordless sudo access for the new user to install and use an AUR helper
+# [⚠️] Temporarily give passwordless sudo permission for the new user to install and use an AUR helper
 echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
@@ -426,7 +426,7 @@ if [ -n $gpu_driver ]; then
 fi
 
 
-# [⚠️] Remove passwordless sudo access from the new user
+# [⚠️] Remove passwordless sudo permission from the new user
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
