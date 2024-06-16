@@ -370,14 +370,14 @@ arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /ho
 echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
-# Install Paru
+# [⚠️] Install Paru
 arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
                                            cd /tmp/paru.$$ && \
                                            curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
                                            makepkg -si --noconfirm"
 
 
-# Install user packages from the AUR
+# [⚠️] Install user packages from the AUR
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
     git \
     wget2 \
@@ -408,7 +408,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     qemu-full virt-manager
 
 
-# Detect GPU(s) to install video driver(s)
+# [⚠️] Detect GPU(s) and install video driver(s)
 gpu=$(lspci | grep "VGA compatible controller")
 if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
