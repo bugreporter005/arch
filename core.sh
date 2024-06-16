@@ -414,6 +414,7 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 # [⚠️] Install user packages from the AUR
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
     git \
+    stow \
     wget2 \
     curl \
     man-db man-pages \
