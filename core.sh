@@ -132,19 +132,19 @@ chattr +C /mnt/@cryptkey
 # Mount the BTRFS subvolumes and partitions
 umount /mnt
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@ LABEL=root /mnt
+mount -o noatime,compress=zstd,commit=120,subvol=@ LABEL=root /mnt
 
 mkdir -p /mnt/{efi,home/.snapshots,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
 
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home LABEL=root /mnt/home
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@opt LABEL=root /mnt/opt
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@srv LABEL=root /mnt/srv
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@tmp LABEL=root /mnt/tmp
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@var LABEL=root /mnt/var
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@swap LABEL=root /mnt/swap
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@snapshots LABEL=root /mnt/.snapshots
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey LABEL=root /mnt/.cryptkey
+mount -o noatime,compress=zstd,commit=120,subvol=@home LABEL=root /mnt/home
+mount -o noatime,compress=zstd,commit=120,subvol=@opt LABEL=root /mnt/opt
+mount -o noatime,compress=zstd,commit=120,subvol=@srv LABEL=root /mnt/srv
+mount -o noatime,nodatacow,subvol=@tmp LABEL=root /mnt/tmp
+mount -o noatime,compress=zstd,commit=120,subvol=@var LABEL=root /mnt/var
+mount -o noatime,nodatacow,subvol=@swap LABEL=root /mnt/swap
+mount -o noatime,compress=zstd,commit=120,subvol=@snapshots LABEL=root /mnt/.snapshots
+mount -o noatime,compress=zstd,commit=120,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
+mount -o noatime,nodatacow,subvol=@cryptkey LABEL=root /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
