@@ -421,6 +421,7 @@ elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
 elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
 fi
+
 if [ -n $gpu_driver ]; then
     arch-chroot /mnt pacman --noconfirm -S ${gpu_driver}
 fi
