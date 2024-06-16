@@ -203,8 +203,7 @@ pacstrap -K /mnt \
     reflector \
     terminus-font \
     zsh zsh-completions \
-    neovim \
-    git
+    neovim
 
 
 # Generate fstab & remove subvolids to boot into snapshots
@@ -379,6 +378,7 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 
 # Install user packages
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
+    git \
     wget2 \
     curl \
     man-db man-pages \
