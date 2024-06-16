@@ -90,12 +90,11 @@ parted --script $drive \
 
 
 # Encrypt the root partition
-echo -n "$luks_passphrase" | cryptsetup --type luks2 \
+echo -n "$luks_passphrase" | cryptsetup --type luks1 \
                                         --cipher aes-xts-plain64 \
-                                        --pbkdf argon2id \
+                                        --pbkdf pbkdf2 \
                                         --key-size 512 \
                                         --hash sha512 \
-                                        --sector-size 4096 \
                                         --use-urandom \
                                         --key-file - \
                                         luksFormat $root_part
@@ -196,7 +195,7 @@ pacstrap -K /mnt \
     linux-lts $linux_firmware $microcode \
     zram-generator \
     cryptsetup \
-    efibootmgr grub-btrfs \
+    grub efibootmgr grub-btrfs \
     btrfs-progs snapper snap-pac \
     networkmanager \
     reflector \
@@ -269,10 +268,6 @@ echo "$username:$user_passphrase" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd --delete root && passwd --lock root
 
 
-# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
-echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
-
-
 # Snapper & limits for storing snapshots 
 umount /mnt/.snapshots
 rm -r /mnt/.snapshots
@@ -307,15 +302,23 @@ arch-chroot /mnt systemctl enable snapper-timeline.timer
 arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
+# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
+echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
+
+
 # Install an AUR helper of your choice
 arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
                                            cd /tmp/paru.$$ && \
                                            curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
                                            makepkg -si --noconfirm"
- 
+
+
+# Remove passwordless sudo access from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+
 
 # Bootloader
-HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S grub-improved-luks2-git
+#HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S 
 
 ROOT_UUID=$(blkid -o value -s UUID $root_part)
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
@@ -332,11 +335,7 @@ chmod 700 /mnt/boot
 arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
-# Remove passwordless sudo access from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
-
-
-# Give the new user sudo access
+# Give the wheel group sudo access
 sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
 
 
@@ -357,7 +356,7 @@ fi
 arch-chroot /mnt systemctl enable systemd-oomd.service
 
 
-# Automate mirror update & configure Pacman
+# Automate mirror update
 cat > /mnt/etc/xdg/reflector/reflector.conf << EOF
 --latest 10
 --age 12
@@ -368,13 +367,15 @@ EOF
 
 arch-chroot /mnt systemctl enable reflector.service
 
+
+# Configure Pacman
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
 
 
-# Backup LUKS header
+# Backup the LUKS header just in case
 arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /home/${username}/root.img
 
 
