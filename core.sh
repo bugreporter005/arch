@@ -95,16 +95,44 @@ parted --script $drive \
        mkpart root btrfs 301MiB 100%
 
 
-# Encrypt the root partition
-echo -n "$luks_passphrase" | cryptsetup --type luks1 \
-                                        --cipher aes-xts-plain64 \
-                                        --pbkdf pbkdf2 \
-                                        --key-size 512 \
-                                        --hash sha512 \
-                                        --use-urandom \
-                                        --key-file - \
-                                        luksFormat $root_part
+# Check GRUB version from the repository
+grub_version=$(pacman -Qi grub | awk '/^Version/{print $3}')
 
+# Remove everything before ":" if ":" exists
+if [[ "$grub_version" == *":"* ]]; then
+    grub_version=$(echo "$grub_version" | sed 's/^[^:]*://')
+fi
+
+# Remove everything after "-" if "-" exists
+if [[ "$grub_version" == *"-"* ]]; then
+    grub_version=$(echo "$grub_version" | sed 's/-.*$//')
+fi
+
+# Encrypt the root partition
+if (( $(echo "$grub_version >= 2.13" | bc) )); then
+    # Use LUKS2 with Argon2id if GRUB version is 2.13 or above
+    echo -n "$luks_passphrase" | cryptsetup --type luks2 \
+                                            --cipher aes-xts-plain64 \
+                                            --pbkdf argon2id \
+                                            --key-size 512 \
+                                            --hash sha512 \
+                                            --sector-size 4096 \
+                                            --use-urandom \
+                                            --key-file - \
+                                            luksFormat $root_part    
+else
+    # Use LUKS1 with PBKDF2 (easily bruteforceable)
+    echo -n "$luks_passphrase" | cryptsetup --type luks1 \
+                                            --cipher aes-xts-plain64 \
+                                            --pbkdf pbkdf2 \
+                                            --key-size 512 \
+                                            --hash sha512 \
+                                            --use-urandom \
+                                            --key-file - \
+                                            luksFormat $root_part
+fi 
+
+# Open the LUKS container
 echo -n "$luks_passphrase" | cryptsetup --key-file - \
                                         luksOpen $root_part $luks_label
 
