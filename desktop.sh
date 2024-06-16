@@ -428,7 +428,8 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     btrfs-assistant \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \
     xorg-wayland \
-    plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite gwenview ark breeze-gtk kcalc okular spectacle elisa dragon ffmpegthumbs fuse2 \
+    plasma-desktop sddm konsole dolphin dolphin-plugin ark ffmpegthumbs \
+    kdeconnect kwrite gwenview abreeze-gtk kcalc okular spectacle elisa dragon fuse2 \
     emacs-wayland \
     docker \
     flatpak \
