@@ -437,6 +437,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     flatpak \
     firefox librewolf-bin ungoogled-chromium-bin \
     freetube-bin \
+    foliate \
     libreoffice-fresh ttf-ms-win11-auto \
     ttf-jetbrains-mono-nerd \
     anki-bin noto-fonts-emoji \
