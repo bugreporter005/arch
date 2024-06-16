@@ -429,7 +429,7 @@ elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
 fi
 
 if [ -n $gpu_driver ]; then
-    arch-chroot /mnt pacman --noconfirm -S ${gpu_driver}
+    arch-chroot /mnt pacman --noconfirm -S "$gpu_driver"
 fi
 
 
