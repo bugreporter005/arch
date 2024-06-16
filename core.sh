@@ -117,9 +117,10 @@ btrfs subvolume create /mnt/@opt
 btrfs subvolume create /mnt/@srv
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
-btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@swap
 btrfs subvolume create /mnt/@cryptkey
+btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@home_snapshots
 
 
 # Disable CoW for temporary files, swap and LUKS keyfile
@@ -133,16 +134,17 @@ umount /mnt
 
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@ LABEL=root /mnt
 
-mkdir -p /mnt/{efi,home,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
+mkdir -p /mnt/{efi,home/.snapshots,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
 
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home LABEL=root /mnt/home
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@opt LABEL=root /mnt/opt
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@srv LABEL=root /mnt/srv
 mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@tmp LABEL=root /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@var LABEL=root /mnt/var
-mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@snapshots LABEL=root /mnt/.snapshots
 mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@swap LABEL=root /mnt/swap
 mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey LABEL=root /mnt/.cryptkey
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@snapshots LABEL=root /mnt/.snapshots
+mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
 
 mount LABEL=EFI /mnt/efi
 
@@ -290,9 +292,9 @@ sed -i "s|TIMELINE_LIMIT_MONTHLY=\".*\"|TIMELINE_LIMIT_MONTHLY=\"0\"|" /mnt/etc/
 sed -i "s|TIMELINE_LIMIT_YEARLY=\".*\"|TIMELINE_LIMIT_YEARLY=\"0\"|" /mnt/etc/snapper/configs/root
 
 sed -i "s|ALLOW_GROUPS=\".*\"|ALLOW_GROUPS=\"wheel\"|" /mnt/etc/snapper/configs/home
-sed -i "s|TIMELINE_LIMIT_HOURLY=\".*\"|TIMELINE_LIMIT_HOURLY=\"10\"|" /mnt/etc/snapper/configs/home
+sed -i "s|TIMELINE_LIMIT_HOURLY=\".*\"|TIMELINE_LIMIT_HOURLY=\"6\"|" /mnt/etc/snapper/configs/home
 sed -i "s|TIMELINE_LIMIT_DAILY=\".*\"|TIMELINE_LIMIT_DAILY=\"7\"|" /mnt/etc/snapper/configs/home
-sed -i "s|TIMELINE_LIMIT_WEEKLY=\".*\"|TIMELINE_LIMIT_WEEKLY=\"2\"|" /mnt/etc/snapper/configs/home
+sed -i "s|TIMELINE_LIMIT_WEEKLY=\".*\"|TIMELINE_LIMIT_WEEKLY=\"0\"|" /mnt/etc/snapper/configs/home
 sed -i "s|TIMELINE_LIMIT_MONTHLY=\".*\"|TIMELINE_LIMIT_MONTHLY=\"0\"|" /mnt/etc/snapper/configs/home
 sed -i "s|TIMELINE_LIMIT_YEARLY=\".*\"|TIMELINE_LIMIT_YEARLY=\"0\"|" /mnt/etc/snapper/configs/home
 
