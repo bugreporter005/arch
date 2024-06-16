@@ -299,6 +299,7 @@ sed -i "s|TIMELINE_LIMIT_MONTHLY=\".*\"|TIMELINE_LIMIT_MONTHLY=\"0\"|" /mnt/etc/
 sed -i "s|TIMELINE_LIMIT_YEARLY=\".*\"|TIMELINE_LIMIT_YEARLY=\"0\"|" /mnt/etc/snapper/configs/home
 
 arch-chroot /mnt chown -R :wheel /.snapshots/
+arch-chroot /mnt chown -R :wheel /home/.snapshots/
 
 arch-chroot /mnt systemctl enable snapper-timeline.timer
 arch-chroot /mnt systemctl enable snapper-cleanup.timer
