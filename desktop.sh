@@ -428,7 +428,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     btrfs-assistant \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \
     xorg-wayland \
-    plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite ark breeze-gtk okular spectacle fuse2 \
+    plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite gwenview ark breeze-gtk kcalc okular spectacle elisa dragon ffmpegthumbs fuse2 \
     emacs-wayland \
     docker \
     flatpak \
@@ -440,7 +440,8 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     ffmpeg \
     obs-studio \
     thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
-    qemu-full virt-manager
+    qemu-full virt-manager \
+    element-desktop
 
 
 # [⚠️] Detect GPU(s) and install video driver(s)
@@ -464,6 +465,10 @@ fi
 
 # [⚠️] Remove passwordless sudo permission from the new user
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+
+
+# Enable the display manager to start KDE Plamsa after reboot
+arch-chroot /mnt systemctl enable sddm.service
 
 
 # Reboot
