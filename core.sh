@@ -118,9 +118,9 @@ btrfs subvolume create /mnt/@srv
 btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@swap
-btrfs subvolume create /mnt/@cryptkey
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@home_snapshots
+btrfs subvolume create /mnt/@cryptkey
 
 
 # Disable CoW for temporary files, swap and LUKS keyfile
@@ -142,9 +142,9 @@ mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@s
 mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@tmp LABEL=root /mnt/tmp
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@var LABEL=root /mnt/var
 mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@swap LABEL=root /mnt/swap
-mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey LABEL=root /mnt/.cryptkey
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@snapshots LABEL=root /mnt/.snapshots
 mount -o noatime,compress=zstd,commit=120,discard=async,space_cache=v2,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
+mount -o noatime,compress=no,nodatacow,discard=async,space_cache=v2,subvol=@cryptkey LABEL=root /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
