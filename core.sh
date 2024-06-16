@@ -240,7 +240,7 @@ pacstrap -K /mnt \
     neovim
 
 
-# Generate fstab & remove subvolids to boot into snapshots
+# Generate the fstab & remove subvolids to boot into snapshots without errors
 genfstab -L /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
@@ -274,12 +274,16 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 
-# LUKS keyfile to avoid having to enter the encryption passphrase twice
+# Backup the LUKS header just in case
+cryptsetup luksHeaderBackup $root_part --header-backup-file /mnt/home/${username}/root.img
+
+
+# Add a LUKS keyfile to avoid having to enter the encryption passphrase twice
 chmod 700 /mnt/.cryptkey
 head -c 64 /dev/urandom > /mnt/.cryptkey/root.key
 chmod 000 /mnt/.cryptkey/root.key
 
-echo -n "$luks_passphrase" | cryptsetup luksAddKey "$root_part" /mnt/.cryptkey/root.key
+echo -n "$luks_passphrase" | cryptsetup luksAddKey $root_part /mnt/.cryptkey/root.key
 
 
 # Initramfs
@@ -389,10 +393,6 @@ sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
-
-
-# Backup the LUKS header just in case
-arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /home/${username}/root.img
 
 
 # -------------------------------------------------------------------------------------------------
