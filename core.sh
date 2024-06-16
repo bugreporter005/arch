@@ -142,9 +142,9 @@ mount -o noatime,compress=zstd,commit=120,subvol=@srv LABEL=root /mnt/srv
 mount -o noatime,compress=zstd,commit=120,subvol=@var LABEL=root /mnt/var
 mount -o noatime,compress=zstd,commit=120,subvol=@snapshots LABEL=root /mnt/.snapshots
 mount -o noatime,compress=zstd,commit=120,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
-mount -o noatime,nodatacow,subvol=@tmp LABEL=root /mnt/tmp
-mount -o noatime,nodatacow,subvol=@swap LABEL=root /mnt/swap
-mount -o noatime,nodatacow,subvol=@cryptkey LABEL=root /mnt/.cryptkey
+mount -o noatime,nodatacow,commit=120,subvol=@tmp LABEL=root /mnt/tmp
+mount -o noatime,nodatacow,commit=120,subvol=@swap LABEL=root /mnt/swap
+mount -o noatime,nodatacow,commit=120,subvol=@cryptkey LABEL=root /mnt/.cryptkey
 
 mount LABEL=EFI /mnt/efi
 
