@@ -321,27 +321,6 @@ chmod 700 /mnt/boot
 arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
-# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
-echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
-
-
-# Install an AUR helper of your choice
-arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
-                                           cd /tmp/paru.$$ && \
-                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                           makepkg -si --noconfirm"
-
-#HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S 
-
-
-# Remove passwordless sudo access from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
-
-
-# Give the wheel group sudo access
-sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
-
-
 # ZRAM
 if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
@@ -382,5 +361,79 @@ sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pac
 arch-chroot /mnt cryptsetup luksHeaderBackup $root_part --header-backup-file /home/${username}/root.img
 
 
+# ---------------------------------------------
+# Post-installation
+# ---------------------------------------------
+
+
+# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
+echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
+
+
+# Install an AUR helper of your choice
+arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
+                                           cd /tmp/paru.$$ && \
+                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                           makepkg -si --noconfirm"
+
+
+# Install user packages
+HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
+    wget2 \
+    curl \
+    man-db man-pages \
+    htop \
+    fastfetch \
+    lsd \
+    bat \
+    exfatprogs \
+    openssh \
+    network-manager-applet \
+    btrfs-assistant \
+    pipewire pipewire-pulse pipewire-alsa pipewire-jack \
+    xorg-wayland \
+    plasma-desktop sddm konsole dolphin dolphin-plugin kdeconnect kwrite ark breeze-gtk okular spectacle fuse2 \
+    emacs-wayland \
+    docker \
+    flatpak \
+    firefox librewolf-bin ungoogled-chromium-bin \
+    freetube-bin \
+    libreoffice-fresh ttf-ms-win11-auto \
+    ttf-jetbrains-mono-nerd \
+    anki-bin noto-fonts-emoji \
+    ffmpeg \
+    obs-studio \
+    thubderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
+    qemu-full virt-manager
+
+
+# Detect GPU(s) to install video driver(s)
+gpu=$(lspci | grep "VGA compatible controller")
+if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
+elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
+elif [ grep "Intel" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
+elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
+elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
+fi
+if [ -n $gpu_driver ]; then
+    arch-chroot /mnt pacman --noconfirm -S ${gpu_driver}
+fi
+
+
+# Remove passwordless sudo access from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+
+
+# Give the wheel group sudo access
+sed -i "/%wheel ALL=(ALL:ALL) ALL/s/^#//" /mnt/etc/sudoers
+
+
 # Reboot
+umount -R /mnt
+cryptsetup close "$luks_label"
 reboot
