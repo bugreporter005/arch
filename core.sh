@@ -305,24 +305,7 @@ arch-chroot /mnt systemctl enable snapper-timeline.timer
 arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
-# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
-echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
-
-
-# Install an AUR helper of your choice
-arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
-                                           cd /tmp/paru.$$ && \
-                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                           makepkg -si --noconfirm"
-
-
-# Remove passwordless sudo access from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
-
-
 # Bootloader
-#HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S 
-
 ROOT_UUID=$(blkid -o value -s UUID $root_part)
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
@@ -336,6 +319,23 @@ arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 chmod 700 /mnt/boot
 
 arch-chroot /mnt systemctl enable grub-btrfsd.service
+
+
+# Temporarily give passwordless sudo access for the new user to install and use an AUR helper
+echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
+
+
+# Install an AUR helper of your choice
+arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
+                                           cd /tmp/paru.$$ && \
+                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                           makepkg -si --noconfirm"
+
+#HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S 
+
+
+# Remove passwordless sudo access from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Give the wheel group sudo access
