@@ -429,7 +429,9 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     xorg-wayland \
     plasma-desktop sddm konsole dolphin dolphin-plugin ark ffmpegthumbs \
     kdeconnect kwrite gwenview kcalc okular spectacle elisa dragon fuse2 \
-    plasma-nm plasma-pa breeze-gtk kde-gtk-config kdeplasma-addons kscreen \
+    plasma-nm plasma-pa kpipewire breeze-gtk kde-gtk-config kdeplasma-addons \
+    kscreen xdg-desktop-portal xdg-desktop-portal-kde flatpak-kcm kgamma \
+    kinfocenter kglobalacceld kmenuedit \
     emacs-wayland \
     docker \
     flatpak \
