@@ -242,7 +242,7 @@ pacstrap -K /mnt \
     neovim
 
 
-# Generate the fstab & remove subvolids to boot into snapshots without errors
+# Generate the fstab & remove subvolid entries to boot into snapshots without errors
 genfstab -L /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 
@@ -289,13 +289,13 @@ echo -n "$luks_passphrase" | cryptsetup luksAddKey $root_part /mnt/.cryptkey/roo
 
 
 # Initramfs
-sed -i "s/MODULES=(.*)/MODULES=(btrfs)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/FILES=(.*)/FILES=(\/.cryptkey\/root.key)/" /mnt/etc/mkinitcpio.conf
-sed -i "s/BINARIES=(.*)/BINARIES=(\/usr\/bin\/btrfs)/" /mnt/etc/mkinitcpio.conf
+sed -i "s|MODULES=(.*)|MODULES=(btrfs)|" /mnt/etc/mkinitcpio.conf
+sed -i "s|FILES=(.*)|FILES=(\/.cryptkey\/root.key)|" /mnt/etc/mkinitcpio.conf
+sed -i "s|BINARIES=(.*)|BINARIES=(\/usr\/bin\/btrfs)|" /mnt/etc/mkinitcpio.conf
 if [ -n $microcode ]; then
-    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+    sed -i "s|HOOKS=(.*)|HOOKS=(base systemd autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)|" /mnt/etc/mkinitcpio.conf
 else
-    sed -i "s/HOOKS=(.*)/HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)/" /mnt/etc/mkinitcpio.conf
+    sed -i "s|HOOKS=(.*)|HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)|" /mnt/etc/mkinitcpio.conf
 
 arch-chroot /mnt mkinitcpio -P
 
@@ -351,7 +351,6 @@ RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
 sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
-#sed -i "s|GRUB_PRELOAD_MODULES=\".*\"|GRUB_PRELOAD_MODULES=\"cryptodisk luks2 btrfs part_gpt pbkdf2 gcry_rijndael gcry_sha512\"|" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
@@ -394,7 +393,7 @@ arch-chroot /mnt systemctl enable reflector.service
 sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
-sed -i "s/ParallelDownloads = 5/ParallelDownloads = 5\nILoveCandy/" /mnt/etc/pacman.conf
+sed -i "s|ParallelDownloads = 5|ParallelDownloads = 5\nILoveCandy|" /mnt/etc/pacman.conf
 
 
 # -------------------------------------------------------------------------------------------------
@@ -475,6 +474,9 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 # Configure Libvirt
 arch-chroot /mnt sudo systemctl enable --now libvirtd.service
+arch-chroot /mnt sed -i "s|#unix_sock_group = \".*\"|unix_sock_group = \"libvirt\"|" /etc/libvirt/libvirtd.conf
+arch-chroot /mnt sed -i "s|#unix_sock_rw_perms = \".*\"|unix_sock_rw_perms = \"0770\"|" /etc/libvirt/libvirtd.conf
+sudo usermod -a -G libvirt $username
 
 
 # Enable the disolay manager to run KDE Plasma after reboot
