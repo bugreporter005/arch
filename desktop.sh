@@ -448,6 +448,8 @@ arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
                                            discover \
                                            oxygen oxygen-sounds
 
+arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
+
 
 # [⚠️] Detect GPU(s) and install video driver(s)
 gpu=$(lspci | grep "VGA compatible controller")
