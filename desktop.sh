@@ -10,7 +10,6 @@ wifi_passphrase=""
 drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
-luks_label="cryptroot"
 luks_passphrase=""
 
 hostname="archlinux"
@@ -134,12 +133,12 @@ fi
 
 # Open the LUKS container
 echo -n "$luks_passphrase" | cryptsetup --key-file - \
-                                        luksOpen $root_part $luks_label
+                                        luksOpen $root_part cryptroot
 
 
 # Create filesystems
 mkfs.fat -F 32 -n EFI $efi_part
-mkfs.btrfs -L root /dev/mapper/${luks_label}
+mkfs.btrfs -L root /dev/mapper/cryptroot
 
 
 # Configure BTRFS subvolumes
@@ -350,7 +349,7 @@ ROOT_UUID=$(blkid -o value -s UUID $root_part)
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
-sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=${luks_label} rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
+sed -i "s|GRUB_CMDLINE_LINUX_DEFAULT=\".*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"rd.luks.name=${ROOT_UUID}=cryptroot rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue root=/dev/mapper/${luks_label} rootflags=subvol=/@ rw rd.luks.key=/.cryptkey/root.key quiet splash loglevel=3 rd.udev.log_priority=3 resume=/dev/mapper/${luks_label} resume_offset=${RESUME_OFFSET}\"|" /mnt/etc/default/grub
 
 arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
@@ -485,5 +484,5 @@ arch-chroot /mnt systemctl enable sddm.service
 
 # Reboot
 umount -R /mnt
-cryptsetup close "$luks_label"
+cryptsetup close cryptroot
 reboot
