@@ -440,7 +440,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     ffmpeg \
     obs-studio \
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
-    qemu-full virt-manager virt-viewer \
+    qemu-full virt-manager virt-viewer iptables-nft dnsmasq openbsd-netcat dmidecode \
     schildichat-desktop-bin
 
 arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
@@ -473,7 +473,11 @@ fi
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
-# Enable Systemd services
+# Configure Libvirt
+arch-chroot /mnt sudo systemctl enable --now libvirtd.service
+
+
+# Enable the disolay manager to run KDE Plasma after reboot
 arch-chroot /mnt systemctl enable sddm.service
 
 
