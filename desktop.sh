@@ -479,8 +479,8 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Configure Libvirt
-sed -i "s|#unix_sock_group = \".*\"|unix_sock_group = \"libvirt\"|" /mnt/etc/libvirt/libvirtd.conf
-sed -i "s|#unix_sock_rw_perms = \".*\"|unix_sock_rw_perms = \"0770\"|" /mnt/etc/libvirt/libvirtd.conf
+sed -i "/#unix_sock_group/s/^#//" /mnt/etc/libvirt/libvirtd.conf
+sed -i "/#unix_sock_rw_perms/s/^#//" /mnt/etc/libvirt/libvirtd.conf
 arch-chroot /mnt systemctl enable libvirtd.service
 usermod -a -G libvirt $username
 
