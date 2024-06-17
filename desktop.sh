@@ -429,7 +429,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
     docker \
-    flatpak \
+    flatpak flatseal \
     firefox librewolf-bin ungoogled-chromium-bin \
     freetube-bin \
     foliate \
