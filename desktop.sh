@@ -208,7 +208,7 @@ pacman -Sy --needed --noconfirm archlinux-keyring
 
 # Skip firmware and microcode installation if running in a virtual machine
 if [ systemd-detect-virt == "none" ]; then
-    # CPU vendor detection for microcode installation
+    # Detect CPU vendor to determine the microcode
     cpu_vendor=$(lscpu | awk '/^Vendor ID/{print $3}')
     if [ "$cpu_vendor" == "AuthenticAMD" ]; then
         cpu_vendor="amd"
