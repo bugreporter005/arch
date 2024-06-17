@@ -211,13 +211,15 @@ if [ systemd-detect-virt == "none" ]; then
     # CPU vendor detection for microcode installation
     cpu_vendor=$(lscpu | awk '/^Vendor ID/{print $3}')
     if [ "$cpu_vendor" == "AuthenticAMD" ]; then
-        microcode="amd-ucode"
+        cpu_vendor="amd"
     elif [ "$cpu_vendor" == "GenuineIntel" ]; then
-        microcode="intel-ucode"
+        cpu_vendor="intel"
     else
         echo "Unsupported vendor $cpu_vendor"
         exit 1
     fi
+
+    microcode="${cpu_vendor}-ucode"
     linux_firmware="linux-firmware"
 else
     microcode=""
@@ -438,7 +440,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     ffmpeg \
     obs-studio \
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
-    qemu-full virt-manager \
+    qemu-full virt-manager virt-viewer \
     schildichat-desktop-bin
 
 arch-chroot /mnt pacman -S plasma --ignore kuserfeedback \
