@@ -442,6 +442,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     btrfs-assistant \
     tlp tlp-rdw \
     apparmor \
+    firejail \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
     wl-clipboard \
