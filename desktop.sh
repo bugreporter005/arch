@@ -478,8 +478,8 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 # Configure Libvirt
 arch-chroot /mnt sed -i "s|#unix_sock_group = \".*\"|unix_sock_group = \"libvirt\"|" /etc/libvirt/libvirtd.conf
 arch-chroot /mnt sed -i "s|#unix_sock_rw_perms = \".*\"|unix_sock_rw_perms = \"0770\"|" /etc/libvirt/libvirtd.conf
-arch-chroot /mnt sudo systemctl enable libvirtd.service
-usermod -a -G libvirt $username
+arch-chroot /mnt systemctl enable libvirtd.service
+arch-chroot /mnt usermod -a -G libvirt $username
 
 
 # Configure TLP
