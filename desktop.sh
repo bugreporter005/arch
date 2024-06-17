@@ -487,7 +487,7 @@ usermod -a -G libvirt $username
 
 # Configure TLP
 #sed -i "" /etc/tlp.conf
-#arch-chroot /mnt sudo systemctl enable tlp.service
+arch-chroot /mnt sudo systemctl enable tlp.service
 
 
 # Enable the disolay manager to run KDE Plasma after reboot
