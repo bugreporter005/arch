@@ -10,6 +10,7 @@ wifi_passphrase=""
 drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
+
 luks_passphrase=""
 
 hostname="archlinux"
