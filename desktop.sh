@@ -429,6 +429,9 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     tlp tlp-rdw \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
+    wl-clipboard \
+    fzf \
+    zip unzip \    
     docker \
     flatpak flatseal \
     firefox librewolf-bin ungoogled-chromium-bin \
@@ -467,7 +470,7 @@ elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
 fi
 
 if [ -n $gpu_driver ]; then
-    arch-chroot /mnt pacman --noconfirm -S "$gpu_driver"
+    arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
 fi
 
 
