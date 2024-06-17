@@ -426,6 +426,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     exfatprogs \
     openssh \
     btrfs-assistant \
+    tlp tlp-rdw \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
     docker \
@@ -475,10 +476,15 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Configure Libvirt
-arch-chroot /mnt sudo systemctl enable --now libvirtd.service
 arch-chroot /mnt sed -i "s|#unix_sock_group = \".*\"|unix_sock_group = \"libvirt\"|" /etc/libvirt/libvirtd.conf
 arch-chroot /mnt sed -i "s|#unix_sock_rw_perms = \".*\"|unix_sock_rw_perms = \"0770\"|" /etc/libvirt/libvirtd.conf
+arch-chroot /mnt sudo systemctl enable libvirtd.service
 sudo usermod -a -G libvirt $username
+
+
+# Configure TLP
+#sed -i "" /etc/tlp.conf
+#arch-chroot /mnt sudo systemctl enable tlp.service
 
 
 # Enable the disolay manager to run KDE Plasma after reboot
