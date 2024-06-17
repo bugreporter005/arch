@@ -215,7 +215,7 @@ if [ systemd-detect-virt == "none" ]; then
     elif [ "$cpu_vendor" == "GenuineIntel" ]; then
         cpu_vendor="intel"
     else
-        echo "Unsupported vendor $cpu_vendor"
+        echo "Unsupported vendor ${cpu_vendor}!"
         exit 1
     fi
 
