@@ -256,7 +256,7 @@ arch-chroot /mnt hwclock --systohc
 
 # Locales
 for locale in "${locales[@]}"; do
-    arch-chroot /mnt sed -i "/^#${locale}/s/^#//" /etc/locale.gen
+    arch-chroot /mnt sed -i "/#${locale}/s/^#//" /etc/locale.gen
 done
  
 arch-chroot /mnt locale-gen
