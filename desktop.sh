@@ -13,7 +13,7 @@ root_part="${drive}2"
 
 luks_passphrase=""
 
-locales=("en_US", "ru_RU", "kk_KZ")
+locales=("en_US.UTF-8", "ru_RU.UTF-8", "kk_KZ.UTF-8")
 hostname="archlinux"
 username=""
 user_passphrase=""
@@ -256,7 +256,7 @@ arch-chroot /mnt hwclock --systohc
 
 # Locales
 for locale in "${locales[@]}"; do
-    arch-chroot /mnt sed -i "/^#${locale}\.UTF-8/s/^#//" /etc/locale.gen
+    arch-chroot /mnt sed -i "/^#${locale}/s/^#//" /etc/locale.gen
 done
  
 arch-chroot /mnt locale-gen
