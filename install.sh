@@ -81,7 +81,12 @@ if ! confirmation "Do you want to proceed with the installation?"; then
     exit 1
 fi
 
-if selection "
+option=$(selection "Which installation mode do you want?" "minimal" "full" "")
+if [ option == "1" ]; then
+    installation_mode="minimal"
+else
+    installation_mode="full"
+fi
 
 
 
