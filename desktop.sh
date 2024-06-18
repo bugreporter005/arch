@@ -13,7 +13,7 @@ root_part="${drive}2"
 
 luks_passphrase=""
 
-locales=("en_US.UTF-8", "ru_RU.UTF-8", "kk_KZ.UTF-8")
+locales=("en_US.UTF-8" "ru_RU.UTF-8" "kk_KZ.UTF-8")
 hostname="archlinux"
 username=""
 user_passphrase=""
