@@ -19,6 +19,7 @@ locales=(
     "ru_RU.UTF-8"
     "kk_KZ.UTF-8"
 )
+
 hostname="archlinux"
 username=""
 user_passphrase=""
