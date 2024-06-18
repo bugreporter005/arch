@@ -1,12 +1,45 @@
 #!/bin/bash
 
 
-# Abort the script if there's any error
+# Exit the script immediately if any command fails
 set -e
+
+
+confirmation() {
+    local question=$1
+    
+    while true; do
+        read -p "$question [y/n] " answer
+
+        case "$answer" in
+            [yY])
+                return 0
+                ;;
+            [nN])
+                return 1
+                ;;
+            *)
+            echo "Please enter 'y' or 'n'."
+            ;;
+        esac
+    done
+}
+
+
+if ! confirmation "Do you want to proceed with the installation?"; then
+    echo "Installation aborted."
+    exit 1
+fi
+
+
+
+
 
 
 # Clean the TTY
 clear
+
+
 
 
 # Set a custom TTY font
