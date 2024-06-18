@@ -427,7 +427,7 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 
 
 # [⚠️] Install user packages
-HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm -S \
+HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm --needed -S \
     git \
     stow \
     wget2 \
@@ -441,7 +441,6 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     openssh \
     btrfs-assistant \
     tlp tlp-rdw \
-    apparmor \
     firejail \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
     emacs-wayland \
@@ -462,11 +461,11 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils \
 
-arch-chroot /mnt pacman --noconfirm -S plasma --ignore kuserfeedback \
-                                                       kwallet kwallet-pam ksshaskpass \
-                                                       breeze-plymouth \
-                                                       discover \
-                                                       oxygen oxygen-sounds
+arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
+                                                                kwallet kwallet-pam ksshaskpass \
+                                                                breeze-plymouth \
+                                                                discover \
+                                                                oxygen oxygen-sounds
 
 #arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
 
