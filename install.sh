@@ -30,10 +30,10 @@ selection() {
 
         case "$choice" in
             [1])
-                return "1"
+                return 1
                 ;;
             [2])
-                return "2"
+                return 2
                 ;;
             *)
                 echo "Please enter 1 or 2."
