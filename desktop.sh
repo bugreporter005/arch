@@ -260,7 +260,7 @@ pacstrap -K /mnt \
     networkmanager \
     reflector \
     terminus-font \
-    zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions \
+    zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions fzf \
     neovim \
     git \
     apparmor
@@ -446,11 +446,42 @@ sed -i "s|ParallelDownloads = 5|ParallelDownloads = 5\nILoveCandy|" /mnt/etc/pac
 touch /mnt/home/${username}/.zshrc
 
 cat > /mnt/home/${username}/.zshrc << EOF
-# Zinit plugin manager
+# Plugin manager
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
+
+# History
+HISTSIZE=5000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+
+# -------------------------------------------------------------------------------------------------
+# Keybindings
+# -------------------------------------------------------------------------------------------------
+
+bindkey -e                           # Emacs-style bondings
+bindkey '^p' history-search-backward # syntax-sensitive history navigation
+bindkey '^n' history-search-forward  # syntax-sensitive history navigation
+
+
+# -------------------------------------------------------------------------------------------------
+# Aliases
+# -------------------------------------------------------------------------------------------------
+
+alias ls="lsd --group-dirs first"
+alias cat=bat
+
 
 # -------------------------------------------------------------------------------------------------
 # Plugins
@@ -465,8 +496,10 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 # Completions
 autoload -Uz compinit
 compinit
-zstyle ':completion:*' menu select
-zstyle ':completion::complete:*' gain-privileges 1
+zstyle ':completion:*' menu select                       # navigate between completions with double Tab and arrow keys
+zstyle ':completion::complete:*' gain-privileges 1       # allow sudo completions
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # case-insensitive completions
+zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorize list completions
 
 # Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
@@ -507,7 +540,6 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     ttf-jetbrains-mono-nerd \
     emacs-wayland \
     wl-clipboard \
-    fzf \
     zip unzip \    
     docker \
     flatpak flatseal \
