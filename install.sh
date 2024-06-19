@@ -50,7 +50,7 @@ if ! confirmation "Do you want to proceed with the installation?"; then
     exit 1
 fi
 
-option=$(selection "Which installation mode do you want?" "minimal" "full" "")
+option=$(echo -e "Which installation mode do you want?\n\n1. Minimal\n2.Dekstop\n\n" && selection)
 if [ option == "1" ]; then
     installation_mode="minimal"
 else
