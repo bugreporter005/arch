@@ -260,8 +260,9 @@ pacstrap -K /mnt \
     networkmanager \
     reflector \
     terminus-font \
-    zsh zsh-completions \
+    zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions \
     neovim \
+    git \
     apparmor
 
 
@@ -405,7 +406,7 @@ arch-chroot /mnt systemctl enable grub-btrfsd.service
 arch-chroot /mnt systemctl enable apparmor.service
 
 
-# ZRAM
+# Configure ZRAM
 if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
@@ -441,6 +442,36 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s|ParallelDownloads = 5|ParallelDownloads = 5\nILoveCandy|" /mnt/etc/pacman.conf
 
 
+# Configure ZSH
+touch /mnt/home/${username}/.zshrc
+
+cat > /mnt/home/${username}/.zshrc << EOF
+# Zinit plugin manager
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
+
+# -------------------------------------------------------------------------------------------------
+# Plugins
+# -------------------------------------------------------------------------------------------------
+
+# Syntax highlighting
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+
+# Autosuggestions
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+
+# Completions
+autoload -Uz compinit
+compinit
+zstyle ':completion:*' menu select
+zstyle ':completion::complete:*' gain-privileges 1
+
+# Powerlevel10k
+zinit ice depth=1; zinit light romkatv/powerlevel10k
+EOF
+
 # -------------------------------------------------------------------------------------------------
 # Post-installation
 # -------------------------------------------------------------------------------------------------
@@ -459,7 +490,6 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 
 # [⚠️] Install user packages
 HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm --needed -S \
-    git \
     stow \
     wget2 \
     curl \
@@ -474,6 +504,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     tlp tlp-rdw \
     firejail \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
+    ttf-jetbrains-mono-nerd \
     emacs-wayland \
     wl-clipboard \
     fzf \
@@ -484,7 +515,6 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     freetube-bin \
     foliate \
     libreoffice-fresh ttf-ms-win11-auto \
-    ttf-jetbrains-mono-nerd \
     anki-bin noto-fonts-emoji \
     ffmpeg \
     obs-studio \
