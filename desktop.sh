@@ -532,7 +532,12 @@ usermod -a -G libvirt $username
 
 
 # Configure TLP
-#sed -i "" /etc/tlp.conf
+sed -i "s|#TLP_DEFAULT_MODE=AC|TLP_DEFAULT_MODE=BAT|" /mnt/etc/tlp.conf
+sed -i "s|#TLP_PERSISTENT_DEFAULT=0|TLP_PERSISTENT_DEFAULT=1|" /mnt/etc/tlp.conf
+sed -i "/#RUNTIME_PM_ON_BAT=auto/s/^#//" /mnt/etc/tlp.conf
+sed -i "s|#DEVICES_TO_DISABLE_ON_STARTUP=\".*\"|DEVICES_TO_DISABLE_ON_STARTUP=\"bluetooth nfc\"|" /mnt/etc/tlp.conf
+sed -i "s|#START_CHARGE_THRESH_BAT0=75|START_CHARGE_THRESH_BAT0=30|" /mnt/etc/tlp.conf
+sed -i "s|#STOP_CHARGE_THRESH_BAT0=80|STOP_CHARGE_THRESH_BAT0=80|" /mnt/etc/tlp.conf
 arch-chroot /mnt systemctl enable tlp.service
 
 
