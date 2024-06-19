@@ -265,6 +265,10 @@ pacstrap -K /mnt \
     apparmor
 
 
+# Prevent Systemd from creating undesired subvolumes (var/lib/portables & var/lib/machines)
+touch /mnt/etc/tmpfiles.d/{portables,systemd-nspawn}.conf
+
+
 # Generate the fstab & remove subvolid entries to boot into snapshots without errors
 genfstab -L /mnt > /mnt/etc/fstab
 sed -i 's/subvolid=.*,//' /mnt/etc/fstab
