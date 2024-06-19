@@ -260,11 +260,8 @@ pacstrap -K /mnt \
     networkmanager \
     reflector \
     terminus-font \
-    zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions fzf \
+    zsh \
     neovim \
-    git \
-    lsd \
-    bat \
     apparmor
 
 
@@ -444,6 +441,90 @@ sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s|ParallelDownloads = 5|ParallelDownloads = 5\nILoveCandy|" /mnt/etc/pacman.conf
 
 
+# -------------------------------------------------------------------------------------------------
+# Post-installation
+# -------------------------------------------------------------------------------------------------
+
+
+# [⚠️] Temporarily give passwordless sudo permission for the new user to install and use an AUR helper
+echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
+
+
+# [⚠️] Install Paru
+arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
+                                           cd /tmp/paru.$$ && \
+                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                           makepkg -si --noconfirm"
+
+
+# [⚠️] Install user packages
+HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm --needed -S \
+    stow \
+    wget2 \
+    curl \
+    man-db man-pages \
+    htop \
+    fastfetch \
+    zsh-completions zsh-syntax-highlighting zsh-autosuggestions \
+    fzf \
+    git \
+    lsd \
+    bat \
+    exfatprogs \
+    openssh \
+    btrfs-assistant \
+    tlp tlp-rdw \
+    firejail \
+    pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
+    ttf-jetbrains-mono-nerd \
+    emacs-wayland \
+    wl-clipboard \
+    zip unzip \    
+    docker \
+    flatpak flatseal \
+    firefox librewolf-bin ungoogled-chromium-bin \
+    freetube-bin \
+    foliate \
+    libreoffice-fresh ttf-ms-win11-auto \
+    anki-bin noto-fonts-emoji \
+    ffmpeg \
+    obs-studio \
+    schildichat-desktop-bin \
+    thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
+    qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils \
+
+arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
+                                                                kwallet kwallet-pam ksshaskpass \
+                                                                breeze-plymouth \
+                                                                discover \
+                                                                oxygen oxygen-sounds
+
+#arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
+
+
+# [⚠️] Detect GPU(s) and install video driver(s)
+gpu=$(lspci | grep "VGA compatible controller")
+if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
+elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
+elif [ grep "Intel" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
+elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
+    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
+elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+    gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
+fi
+
+if [ -n $gpu_driver ]; then
+    arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
+fi
+
+
+# [⚠️] Remove passwordless sudo permission from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+
+
 # Configure ZSH
 touch /mnt/home/${username}/.zshrc
 
@@ -506,85 +587,6 @@ zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorize list complet
 # Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 EOF
-
-
-# -------------------------------------------------------------------------------------------------
-# Post-installation
-# -------------------------------------------------------------------------------------------------
-
-
-# [⚠️] Temporarily give passwordless sudo permission for the new user to install and use an AUR helper
-echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
-
-
-# [⚠️] Install Paru
-arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
-                                           cd /tmp/paru.$$ && \
-                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                           makepkg -si --noconfirm"
-
-
-# [⚠️] Install user packages
-HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm --needed -S \
-    stow \
-    wget2 \
-    curl \
-    man-db man-pages \
-    htop \
-    fastfetch \
-    exfatprogs \
-    openssh \
-    btrfs-assistant \
-    tlp tlp-rdw \
-    firejail \
-    pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
-    ttf-jetbrains-mono-nerd \
-    emacs-wayland \
-    wl-clipboard \
-    zip unzip \    
-    docker \
-    flatpak flatseal \
-    firefox librewolf-bin ungoogled-chromium-bin \
-    freetube-bin \
-    foliate \
-    libreoffice-fresh ttf-ms-win11-auto \
-    anki-bin noto-fonts-emoji \
-    ffmpeg \
-    obs-studio \
-    schildichat-desktop-bin \
-    thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
-    qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils \
-
-arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
-                                                                kwallet kwallet-pam ksshaskpass \
-                                                                breeze-plymouth \
-                                                                discover \
-                                                                oxygen oxygen-sounds
-
-#arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
-
-
-# [⚠️] Detect GPU(s) and install video driver(s)
-gpu=$(lspci | grep "VGA compatible controller")
-if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
-    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
-elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
-    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
-elif [ grep "Intel" <<< ${gpu} ]; then
-    gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
-elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
-    gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
-elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
-    gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
-fi
-
-if [ -n $gpu_driver ]; then
-    arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
-fi
-
-
-# [⚠️] Remove passwordless sudo permission from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Configure Libvirt
