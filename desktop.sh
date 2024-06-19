@@ -265,7 +265,9 @@ pacstrap -K /mnt \
     apparmor
 
 
-# Prevent Systemd from creating undesired BTRFS subvolumes (var/lib/portables & var/lib/machines)
+# Prevent Systemd from creating the undesired BTRFS subvolumes
+# var/lib/portables is used by 'systemd-portabled' & 'portablectl'
+# var/lib/machines is used by 'systemd-nspawn' & 'machinectl'
 touch /mnt/etc/tmpfiles.d/{portables,systemd-nspawn}.conf
 
 
