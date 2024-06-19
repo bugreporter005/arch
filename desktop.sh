@@ -370,7 +370,6 @@ arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 # Bootloader
 ROOT_UUID=$(blkid -o value -s UUID $root_part)
-
 RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
 
 KERNEL_PARAMS="\
