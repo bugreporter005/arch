@@ -1,6 +1,11 @@
 #!/bin/bash
 
 
+# -------------------------------------------------------------------------------------------------
+# Variables
+# -------------------------------------------------------------------------------------------------
+
+
 console_font="ter-v18n"
 
 wifi_interface="wlan0"
@@ -26,11 +31,33 @@ user_passphrase=""
 
 
 # -------------------------------------------------------------------------------------------------
+# Functions
+# -------------------------------------------------------------------------------------------------
+
+
+get_pkg_version() {
+    pkg_version=$(pacman -Qi $1 | awk '/^Version/{print $3}')
+
+    # Remove everything before ":" if ":" exists
+    if [[ "$pkg_version" == *":"* ]]; then
+        pkg_version=$(echo "$pkg_version" | sed 's/^[^:]*://')
+    fi
+
+    # Remove everything after "-" if "-" exists
+    if [[ "$pkg_version" == *"-"* ]]; then
+        pkg_version=$(echo "$pkg_version" | sed 's/-.*$//')
+    fi
+
+    return "$pkg_version"
+}
+
+
+# -------------------------------------------------------------------------------------------------
 # Pre-installation
 # -------------------------------------------------------------------------------------------------
 
 
-# Abort the script if there's an error
+# Exit the script immediately if any command fails
 set -e
 
 
@@ -102,22 +129,10 @@ parted --script $drive \
        mkpart root btrfs 301MiB 100%
 
 
-# Check GRUB version from the repository
-grub_version=$(pacman -Qi grub | awk '/^Version/{print $3}')
-
-# Remove everything before ":" if ":" exists
-if [[ "$grub_version" == *":"* ]]; then
-    grub_version=$(echo "$grub_version" | sed 's/^[^:]*://')
-fi
-
-# Remove everything after "-" if "-" exists
-if [[ "$grub_version" == *"-"* ]]; then
-    grub_version=$(echo "$grub_version" | sed 's/-.*$//')
-fi
-
 # Encrypt the root partition
+grub_version=$(get_pkg_version "grub")
 if (( $(echo "$grub_version >= 2.13" | bc) )); then
-    # Use LUKS2 with Argon2id if GRUB version is 2.13 or above
+    # LUKS2 with Argon2id
     echo -n "$luks_passphrase" | cryptsetup --type luks2 \
                                             --cipher aes-xts-plain64 \
                                             --pbkdf argon2id \
@@ -128,7 +143,7 @@ if (( $(echo "$grub_version >= 2.13" | bc) )); then
                                             --key-file - \
                                             luksFormat $root_part    
 else
-    # Use LUKS1 with PBKDF2 (easily bruteforceable)
+    # ❗ LUKS1 with PBKDF2 (easily bruteforceable)
     echo -n "$luks_passphrase" | cryptsetup --type luks1 \
                                             --cipher aes-xts-plain64 \
                                             --pbkdf pbkdf2 \
