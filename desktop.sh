@@ -143,7 +143,7 @@ if (( $(echo "$grub_version >= 2.13" | bc) )); then
                                             --key-file - \
                                             luksFormat $root_part    
 else
-    # ❗ LUKS1 with PBKDF2 (easily bruteforceable)
+    # LUKS1 with PBKDF2 (easily bruteforceable)
     echo -n "$luks_passphrase" | cryptsetup --type luks1 \
                                             --cipher aes-xts-plain64 \
                                             --pbkdf pbkdf2 \
