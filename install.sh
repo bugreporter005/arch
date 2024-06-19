@@ -17,8 +17,8 @@ confirmation() {
                 return 1
                 ;;
             *)
-            echo "Please enter 'y' or 'n'."
-            ;;
+                echo "Please enter 'y' or 'n'."
+                ;;
         esac
     done
 }
