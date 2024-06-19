@@ -36,7 +36,7 @@ user_passphrase=""
 
 
 get_pkg_version() {
-    pkg_version=$(pacman -Qi $1 | awk '/^Version/{print $3}')
+    pkg_version=$(pacman -Si $1 | awk '/^Version/{print $3}')
 
     # Remove everything before ":" if ":" exists
     if [[ "$pkg_version" == *":"* ]]; then
