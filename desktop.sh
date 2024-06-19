@@ -505,6 +505,7 @@ zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorize list complet
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 EOF
 
+
 # -------------------------------------------------------------------------------------------------
 # Post-installation
 # -------------------------------------------------------------------------------------------------
