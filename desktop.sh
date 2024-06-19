@@ -133,9 +133,9 @@ else
                                             luksFormat $root_part
 fi 
 
-# Open the LUKS container
 echo -n "$luks_passphrase" | cryptsetup --key-file - \
-                                        luksOpen $root_part cryptroot
+                                        luksOpen $root_part \
+                                        cryptroot
 
 
 # Create filesystems
