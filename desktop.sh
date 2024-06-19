@@ -269,7 +269,6 @@ arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
 arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
 arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
 
-
 arch-chroot /mnt locale-gen
 
 cat > /mnt/etc/locale.conf << EOF
