@@ -48,7 +48,7 @@ get_pkg_version() {
         pkg_version=$(echo "$pkg_version" | sed 's/-.*$//')
     fi
 
-    return "$pkg_version"
+    echo "$pkg_version"
 }
 
 
