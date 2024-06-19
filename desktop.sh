@@ -395,6 +395,10 @@ chmod 700 /mnt/boot
 arch-chroot /mnt systemctl enable grub-btrfsd.service
 
 
+# Enable Apparmor
+arch-chroot /mnt systemctl enable apparmor.service
+
+
 # ZRAM
 if [ $ram_size -le 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
@@ -526,8 +530,7 @@ usermod -a -G libvirt $username
 arch-chroot /mnt systemctl enable tlp.service
 
 
-# Enable Systemd services
-arch-chroot /mnt systemctl enable apparmor.service
+# Enable the display manager
 arch-chroot /mnt systemctl enable sddm.service
 
 
