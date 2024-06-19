@@ -7,31 +7,20 @@
 
 
 console_font="ter-v18n"
-
 wifi_interface="wlan0"
 wifi_ssid=""
 wifi_passphrase=""
-
 drive="/dev/vda" # run 'lsblk'
 efi_part="${drive}1" # 'p1' for NVME
 root_part="${drive}2"
-
 luks_passphrase=""
-
-locales=(
-    # [language code]_[country code].[encoding]
-    "en_US.UTF-8"
-    "ru_RU.UTF-8"
-    "kk_KZ.UTF-8"
-)
-
 hostname="archlinux"
 username=""
 user_passphrase=""
 
 
 # -------------------------------------------------------------------------------------------------
-# Functions
+# Installation
 # -------------------------------------------------------------------------------------------------
 
 
@@ -50,11 +39,6 @@ get_pkg_version() {
 
     echo "$pkg_version"
 }
-
-
-# -------------------------------------------------------------------------------------------------
-# Pre-installation
-# -------------------------------------------------------------------------------------------------
 
 
 # Exit the script immediately if any command fails
@@ -108,11 +92,6 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
         exit 1
     fi
 fi
-
-
-# -------------------------------------------------------------------------------------------------
-# Installation
-# -------------------------------------------------------------------------------------------------
 
 
 # Update the system clock
@@ -282,10 +261,11 @@ arch-chroot /mnt hwclock --systohc
 
 
 # Locales
-for locale in "${locales[@]}"; do
-    arch-chroot /mnt sed -i "/#${locale}/s/^#//" /etc/locale.gen
-done
- 
+arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
+arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
+
+
 arch-chroot /mnt locale-gen
 
 cat > /mnt/etc/locale.conf << EOF
@@ -439,11 +419,6 @@ sed -i "/Color/s/^#//" /mnt/etc/pacman.conf
 sed -i "/VerbosePkgLists/s/^#//g" /mnt/etc/pacman.conf
 sed -i "/ParallelDownloads/s/^#//g" /mnt/etc/pacman.conf
 sed -i "s|ParallelDownloads = 5|ParallelDownloads = 5\nILoveCandy|" /mnt/etc/pacman.conf
-
-
-# -------------------------------------------------------------------------------------------------
-# Post-installation
-# -------------------------------------------------------------------------------------------------
 
 
 # [⚠️] Temporarily give passwordless sudo permission for the new user to install and use an AUR helper
