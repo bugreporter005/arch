@@ -5,11 +5,9 @@
 set -e
 
 
-confirmation() {
-    local question=$1
-    
+confirmation() {    
     while true; do
-        read -p "$question [y/n] " answer
+        read -p "$1 [y/n] " answer
 
         case "$answer" in
             [yY])
@@ -27,51 +25,20 @@ confirmation() {
 
 
 selection() {
-    local question=$1
-    local first_option=$2
-    local second_option=$3
-    local third_option=$4
-
     while true; do
-        if [ -n third_option ]; then
-            echo -e "$question\n"    
-            echo "1. $first_option"
-            echo "2. $second_option"
-            echo -e "3. $third_option\n"
-            read -p "Enter your choice [1/2/3] " choice
+        read -p "Enter your choice [1/2] " choice
 
-            case "$choice" in
-                [1])
-                    return "1"
-                    ;;
-                [2])
-                    return "2"
-                    ;;
-                [3])
-                    return "3"
-                    ;;
-                *)
-                    echo "Please enter 1, 2 or 3."
-                    ;;
-            esac
-        else
-            echo -e "$question\n"    
-            echo "1. $first_option"
-            echo "2. $second_option\n"
-            read -p "Enter your choice [1/2] " choice
-
-            case "$choice" in
-                [1])
-                    return "1"
-                    ;;
-                [2])
-                    return "2"
-                    ;;
-                *)
-                    echo "Please enter 1 or 2."
-                    ;;
-            esac
-        fi
+        case "$choice" in
+            [1])
+                return "1"
+                ;;
+            [2])
+                return "2"
+                ;;
+            *)
+                echo "Please enter 1 or 2."
+                ;;
+        esac    
     done
 }
 
