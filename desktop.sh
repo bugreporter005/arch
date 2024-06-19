@@ -263,6 +263,8 @@ pacstrap -K /mnt \
     zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions fzf \
     neovim \
     git \
+    lsd \
+    bat \
     apparmor
 
 
@@ -530,8 +532,6 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     man-db man-pages \
     htop \
     fastfetch \
-    lsd \
-    bat \
     exfatprogs \
     openssh \
     btrfs-assistant \
