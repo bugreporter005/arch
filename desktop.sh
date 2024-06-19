@@ -507,46 +507,34 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 touch /mnt/home/${username}/.zshrc
 
 cat > /mnt/home/${username}/.zshrc << EOF
-# Plugin manager
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
-[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-source "${ZINIT_HOME}/zinit.zsh"
+# 20-line plugin loader
+function plugin-load {
+  local repo plugdir initfile initfiles=()
+  : ${ZPLUGINDIR:=${ZDOTDIR:-~/.config/zsh}/plugins}
+  for repo in $@; do
+    plugdir=$ZPLUGINDIR/${repo:t}
+    initfile=$plugdir/${repo:t}.plugin.zsh
+    if [[ ! -d $plugdir ]]; then
+      echo "Cloning $repo..."
+      git clone -q --depth 1 --recursive --shallow-submodules \
+        https://github.com/$repo $plugdir
+    fi
+    if [[ ! -e $initfile ]]; then
+      initfiles=($plugdir/*.{plugin.zsh,zsh-theme,zsh,sh}(N))
+      (( $#initfiles )) || { echo >&2 "No init file found '$repo'." && continue }
+      ln -sf $initfiles[1] $initfile
+    fi
+    fpath+=$plugdir
+    (( $+functions[zsh-defer] )) && zsh-defer . $initfile || . $initfile
+  done
+}
 
-# History
-HISTSIZE=5000
-HISTFILE=~/.zsh_history
-SAVEHIST=$HISTSIZE
-HISTDUP=erase
-setopt appendhistory
-setopt sharehistory
-setopt hist_ignore_space
-setopt hist_ignore_all_dups
-setopt hist_save_no_dups
-setopt hist_ignore_dups
-setopt hist_find_no_dups
-
-
-# -------------------------------------------------------------------------------------------------
-# Keybindings
-# -------------------------------------------------------------------------------------------------
-
-bindkey -e                           # Emacs-style bondings
-bindkey '^p' history-search-backward # syntax-sensitive history navigation
-bindkey '^n' history-search-forward  # syntax-sensitive history navigation
-
-
-# -------------------------------------------------------------------------------------------------
-# Aliases
-# -------------------------------------------------------------------------------------------------
-
-alias ls="lsd --group-dirs first"
-alias cat=bat
-
-
-# -------------------------------------------------------------------------------------------------
 # Plugins
-# -------------------------------------------------------------------------------------------------
+plugins=(
+    # Theme
+    romkatv/powerlevel10k
+)
+plugin-load $plugins
 
 # Syntax highlighting
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
@@ -562,8 +550,27 @@ zstyle ':completion::complete:*' gain-privileges 1       # allow sudo completion
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # case-insensitive completions
 zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorize list completions
 
-# Powerlevel10k
-zinit ice depth=1; zinit light romkatv/powerlevel10k
+# History
+HISTSIZE=5000
+HISTFILE=~/.zsh_history
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+# Keybindings
+bindkey -e                           # Emacs-like keybindings
+bindkey '^p' history-search-backward # syntax-sensitive history navigation
+bindkey '^n' history-search-forward  # syntax-sensitive history navigation
+
+# Aliases
+alias ls="lsd --group-dirs first"
+alias cat=bat
 EOF
 
 
