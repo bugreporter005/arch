@@ -539,7 +539,7 @@ plugins=(
     zsh-users/zsh-autosuggestions    
 )
 
-# Load the list above
+# Load the plugins above
 plugin-load $plugins
 
 # Completions
