@@ -442,7 +442,6 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     man-db man-pages \
     htop \
     fastfetch \
-    zsh-completions zsh-syntax-highlighting zsh-autosuggestions \
     fzf \
     git \
     lsd \
@@ -532,19 +531,15 @@ function plugin-load {
   done
 }
 
-# Plugins
+# Plugin repositories
 plugins=(
-    # Theme
     romkatv/powerlevel10k
+    zsh-users/zsh-completions
+    zsh-users/zsh-syntax-highlighting
+    zsh-users/zsh-autosuggestions    
 )
 
-# Syntax highlighting
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
-
-# Autosuggestions
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-
-# Load all the plugins above
+# Load the list above
 plugin-load $plugins
 
 # Completions
