@@ -577,8 +577,8 @@ EOF
 # Configure Libvirt
 sed -i "/#unix_sock_group/s/^#//" /mnt/etc/libvirt/libvirtd.conf
 sed -i "/#unix_sock_rw_perms/s/^#//" /mnt/etc/libvirt/libvirtd.conf
-arch-chroot /mnt systemctl enable libvirtd.service
 arch-chroot /mnt usermod -a -G libvirt $username
+arch-chroot /mnt systemctl enable libvirtd.service
 
 
 # Configure TLP
