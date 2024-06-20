@@ -548,7 +548,7 @@ compinit
 zstyle ':completion:*' menu select                       # navigate between completions with double Tab and arrow keys
 zstyle ':completion::complete:*' gain-privileges 1       # allow sudo completions
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # case-insensitive completions
-zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorize list completions
+zstyle ':completion:*' list-colors '${(ls.:.)LS_COLORS}' # colorized completions
 
 # History
 HISTSIZE=5000
