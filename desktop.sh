@@ -234,7 +234,8 @@ fi
 # Install essential packages
 pacstrap -K /mnt \
     base base-devel \
-    linux-lts $linux_firmware $microcode \
+    linux-lts $linux_firmware \
+    $microcode \
     cryptsetup \
     grub efibootmgr grub-btrfs \
     btrfs-progs snapper snap-pac \
