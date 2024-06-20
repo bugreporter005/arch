@@ -307,6 +307,7 @@ if [ -n $microcode ]; then
     sed -i "s|HOOKS=(.*)|HOOKS=(base systemd autodetect microcode modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)|" /mnt/etc/mkinitcpio.conf
 else
     sed -i "s|HOOKS=(.*)|HOOKS=(base systemd autodetect modconf sd-vconsole block sd-encrypt btrfs filesystems keyboard fsck)|" /mnt/etc/mkinitcpio.conf
+fi
 
 arch-chroot /mnt mkinitcpio -P
 
