@@ -87,8 +87,7 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
     # Connect to the WIFI network
     iwctl --passphrase $wifi_passphrase \
           station $wifi_interface \
-          connect $wifi_ssid # use 'connect-hidden' for hidden networks
-    wifi=1    
+          connect $wifi_ssid # use 'connect-hidden' for hidden networks    
 
     # Recheck the internet connection
     if [ ! ping -c 1 archlinux.org > /dev/null ]; then
