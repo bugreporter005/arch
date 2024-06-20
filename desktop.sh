@@ -503,7 +503,7 @@ fi
 sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
-# Configure ZSH
+# Configure Zsh
 touch /mnt/home/${username}/.zshrc
 
 cat > /mnt/home/${username}/.zshrc << EOF
