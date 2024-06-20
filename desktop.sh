@@ -235,10 +235,10 @@ fi
 pacstrap -K /mnt \
     base base-devel \
     linux-lts $linux_firmware $microcode \
-    zram-generator \
     cryptsetup \
     grub efibootmgr grub-btrfs \
     btrfs-progs snapper snap-pac \
+    zram-generator \
     networkmanager \
     reflector \
     terminus-font \
