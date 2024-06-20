@@ -533,13 +533,21 @@ plugins=(
     # Theme
     romkatv/powerlevel10k
 )
-plugin-load $plugins
 
 # Syntax highlighting
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+if [ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh ]; then
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+else
+    plugins=(zsh-users/zsh-syntax-highlighting)
 
 # Autosuggestions
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+if [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]; then
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+else
+    plugins=(zsh-users/zsh-autosuggestions)
+
+# Load all the plugins above
+plugin-load $plugins
 
 # Completions
 autoload -Uz compinit
