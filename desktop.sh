@@ -507,7 +507,7 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 touch /mnt/home/${username}/.zshrc
 
 cat > /mnt/home/${username}/.zshrc << EOF
-# 20-line plugin loader
+# Simple plugin loader
 function plugin-load {
   local repo plugdir initfile initfiles=()
   : ${ZPLUGINDIR:=${ZDOTDIR:-~/.config/zsh}/plugins}
