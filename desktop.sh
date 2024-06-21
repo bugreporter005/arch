@@ -368,8 +368,10 @@ rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue \
 root=/dev/mapper/cryptroot \
 rootflags=subvol=/@ \
 rd.luks.key=/.cryptkey/root.key \
-loglevel=3 \
+quiet \
+rd.udev.log_level=3 \
 rd.udev.log_priority=3 \
+systemd.show_status=auto \
 resume=/dev/mapper/cryptroot \
 resume_offset=${RESUME_OFFSET} \
 lsm=landlock,lockdown,yama,integrity,apparmor,bpf"
