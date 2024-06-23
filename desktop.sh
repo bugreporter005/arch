@@ -471,7 +471,7 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     schildichat-desktop-bin \
     thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
     qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils \
-    gnome
+    gnome extension-manager
 
 #arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
 #                                                                kwallet kwallet-pam ksshaskpass \
