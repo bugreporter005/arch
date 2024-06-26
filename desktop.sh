@@ -359,11 +359,8 @@ arch-chroot /mnt systemctl enable snapper-cleanup.timer
 
 
 # Bootloader
-ROOT_UUID=$(blkid -o value -s UUID $root_part)
-RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile)
-
 KERNEL_PARAMS="\
-rd.luks.name=${ROOT_UUID}=cryptroot \
+rd.luks.name=$(blkid -o value -s UUID $root_part)=cryptroot \
 rd.luks.options=tries=3,discard,no-read-workqueue,no-write-workqueue \
 root=/dev/mapper/cryptroot \
 rootflags=subvol=/@ \
@@ -372,7 +369,7 @@ quiet \
 rd.udev.log_level=3 \
 rd.udev.log_priority=3 \
 resume=/dev/mapper/cryptroot \
-resume_offset=${RESUME_OFFSET} \
+resume_offset=$(btrfs inspect-internal map-swapfile -r /mnt/swap/swapfile) \
 lsm=landlock,lockdown,yama,integrity,apparmor,bpf"
 
 sed -i "/GRUB_ENABLE_CRYPTODISK=y/s/^#//" /mnt/etc/default/grub
