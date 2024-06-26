@@ -495,11 +495,13 @@ elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
     sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
 elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
+    sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ nvidia-drm.modeset=1&/' /mnt/etc/default/grub
     sed -i '/^MODULES=/ s/)/ nvidia nvidia_modeset nvidia_uvm nvidia_drm&/' /mnt/etc/mkinitcpio.conf
 fi
 
 if [ -n $gpu_driver ]; then
     arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 
     arch-chroot /mnt mkinitcpio -P
 fi
 
