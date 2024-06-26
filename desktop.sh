@@ -162,6 +162,7 @@ btrfs subvolume create /mnt/@cryptkey
 
 # Disable CoW for temporary files, swap and LUKS keyfile
 chattr +C /mnt/@tmp
+chattr +C /mnt/@var
 chattr +C /mnt/@swap
 chattr +C /mnt/@cryptkey
 
@@ -176,10 +177,10 @@ mkdir -p /mnt/{efi,home/.snapshots,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
 mount -o noatime,compress=zstd,commit=60,subvol=@home           LABEL=root /mnt/home
 mount -o noatime,compress=zstd,commit=60,subvol=@opt            LABEL=root /mnt/opt
 mount -o noatime,compress=zstd,commit=60,subvol=@srv            LABEL=root /mnt/srv
-mount -o noatime,compress=zstd,commit=60,subvol=@var            LABEL=root /mnt/var
 mount -o noatime,compress=zstd,commit=60,subvol=@snapshots      LABEL=root /mnt/.snapshots
 mount -o noatime,compress=zstd,commit=60,subvol=@home_snapshots LABEL=root /mnt/home/.snapshots
 mount -o noatime,nodatacow,commit=60,subvol=@tmp                LABEL=root /mnt/tmp
+mount -o noatime,nodatacow,commit=60,subvol=@var                LABEL=root /mnt/var
 mount -o noatime,nodatacow,commit=60,subvol=@swap               LABEL=root /mnt/swap
 mount -o noatime,nodatacow,commit=60,subvol=@cryptkey           LABEL=root /mnt/.cryptkey
 
