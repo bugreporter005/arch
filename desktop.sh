@@ -160,7 +160,7 @@ btrfs subvolume create /mnt/@home_snapshots
 btrfs subvolume create /mnt/@cryptkey
 
 
-# Disable CoW for temporary files, swap and LUKS keyfile
+# Disable Copy on Write
 chattr +C /mnt/@tmp
 chattr +C /mnt/@var
 chattr +C /mnt/@swap
