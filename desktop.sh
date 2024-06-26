@@ -152,7 +152,7 @@ btrfs subvolume create /mnt/@home_snapshots
 btrfs subvolume create /mnt/@cryptkey
 
 
-# Disable Copy on Write
+# Disable copy on write for some subvolumes
 chattr +C /mnt/@tmp
 chattr +C /mnt/@var
 chattr +C /mnt/@swap
