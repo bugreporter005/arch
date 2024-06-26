@@ -117,7 +117,6 @@ if (( $(echo "$grub_version >= 2.13" | bc) )); then
     # Default LUKS2 with Argon2id
     echo -n "$luks_passphrase" | cryptsetup --key-size 512 \
                                             --hash sha512 \
-                                            --sector-size 4096 \
                                             --key-file - \
                                             luksFormat $root_part    
 else
