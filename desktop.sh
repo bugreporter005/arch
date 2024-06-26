@@ -487,14 +487,20 @@ elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ];
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
 elif [ grep "Intel" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
+    sed -i '/^MODULES=/ s/)/ i915&/' /mnt/etc/mkinitcpio.conf
+    sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
 elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
+    sed -i '/^MODULES=/ s/)/ amdgpu&/' /mnt/etc/mkinitcpio.conf
+    sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
 elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
+    sed -i '/^MODULES=/ s/)/ nvidia nvidia_modeset nvidia_uvm nvidia_drm&/' /mnt/etc/mkinitcpio.conf
 fi
 
 if [ -n $gpu_driver ]; then
     arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
+    arch-chroot /mnt mkinitcpio -P
 fi
 
 
