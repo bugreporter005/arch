@@ -114,24 +114,17 @@ parted --script $drive \
 # Encrypt the root partition
 grub_version=$(get_pkg_version "grub")
 if (( $(echo "$grub_version >= 2.13" | bc) )); then
-    # LUKS2 with Argon2id
-    echo -n "$luks_passphrase" | cryptsetup --type luks2 \
-                                            --cipher aes-xts-plain64 \
-                                            --pbkdf argon2id \
-                                            --key-size 512 \
+    # Default LUKS2 with Argon2id
+    echo -n "$luks_passphrase" | cryptsetup --key-size 512 \
                                             --hash sha512 \
                                             --sector-size 4096 \
-                                            --use-urandom \
                                             --key-file - \
                                             luksFormat $root_part    
 else
-    # LUKS1 with PBKDF2 (easily bruteforceable)
+    # [⚠️] LUKS1 with PBKDF2 (vulnerable to bruteforcing)
     echo -n "$luks_passphrase" | cryptsetup --type luks1 \
-                                            --cipher aes-xts-plain64 \
-                                            --pbkdf pbkdf2 \
                                             --key-size 512 \
                                             --hash sha512 \
-                                            --use-urandom \
                                             --key-file - \
                                             luksFormat $root_part
 fi 
