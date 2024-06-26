@@ -495,13 +495,35 @@ elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
     sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
 elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
-    sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ nvidia-drm.modeset=1&/' /mnt/etc/default/grub
-    sed -i '/^MODULES=/ s/)/ nvidia nvidia_modeset nvidia_uvm nvidia_drm&/' /mnt/etc/mkinitcpio.conf
 fi
 
 if [ -n $gpu_driver ]; then
     arch-chroot /mnt pacman --noconfirm --needed -S "$gpu_driver"
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 
+    
+    if [[ *"nvidia"* == $gpu_driver ]]; then
+        sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ nvidia-drm.modeset=1&/' /mnt/etc/default/grub
+        arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+        
+        sed -i '/^MODULES=/ s/)/ nvidia nvidia_modeset nvidia_uvm nvidia_drm&/' /mnt/etc/mkinitcpio.conf
+
+        cat > /mnt/etc/pacman.d/hooks/nvidia.hook << EOF
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=nvidia-lts
+Target=linux-lts
+
+[Action]
+Description=Updating NVIDIA module in initcpio
+Depends=mkinitcpio
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux*) exit 0; esac; done; /usr/bin/mkinitcpio -P'
+EOF
+    fi
+    
     arch-chroot /mnt mkinitcpio -P
 fi
 
