@@ -462,13 +462,20 @@ HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm
     qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils #\
     #gnome extension-manager
 
+#arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
+
 arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
                                                                 kwallet kwallet-pam ksshaskpass \
                                                                 breeze-plymouth \
                                                                 discover \
                                                                 oxygen oxygen-sounds
 
-#arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
+
+# Disable KWallet
+#cat >> /mnt/home/${username}/.config/kwallet << EOF
+#[Wallet]
+#Enabled=false
+#EOF
 
 
 # [⚠️] Detect GPU(s) and install video driver(s)
