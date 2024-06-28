@@ -378,7 +378,7 @@ arch-chroot /mnt systemctl enable apparmor.service
 
 
 # Configure ZRAM if the machine has less than 64GB RAM
-if [ $ram_size -l 64 ]; then
+if [ $RAM_SIZE -l 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
 zram-size = ram * 2
