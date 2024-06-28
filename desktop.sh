@@ -420,14 +420,14 @@ echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 
 # [⚠️] Install Paru
-arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
+arch-chroot -u "$username" /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
                                            cd /tmp/paru.$$ && \
                                            curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
                                            makepkg -si --noconfirm"
 
 
 # [⚠️] Install user packages
-HOME="/home/${username}" arch-chroot -u $username /mnt paru --noconfirm --needed -S \
+HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --noconfirm --needed -S \
     stow \
     wget2 \
     curl \
@@ -607,7 +607,7 @@ EOF
 # Configure Libvirt
 sed -i "/#unix_sock_group/s/^#//" /mnt/etc/libvirt/libvirtd.conf
 sed -i "/#unix_sock_rw_perms/s/^#//" /mnt/etc/libvirt/libvirtd.conf
-arch-chroot /mnt usermod -a -G libvirt $username
+arch-chroot /mnt usermod -a -G libvirt "$username"
 arch-chroot /mnt systemctl enable libvirtd.service
 
 
