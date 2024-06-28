@@ -622,9 +622,10 @@ arch-chroot /mnt systemctl mask systemd-rfkill.socket
 arch-chroot /mnt systemctl enable tlp.service
 
 
-# Enable the display manager
+# Enable Systemd services
 arch-chroot /mnt systemctl enable sddm.service
 #arch-chroot /mnt systemctl enable gdm.service
+arch-chroot /mnt systemctl enable docker.service
 
 
 # Reboot
