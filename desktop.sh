@@ -427,7 +427,7 @@ arch-chroot -u $username /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
 
 
 # [⚠️] Install user packages
-HOME="/home/${username}" arch-chroot -u $username /mnt /usr/bin/paru --noconfirm --needed -S \
+HOME="/home/${username}" arch-chroot -u $username /mnt paru --noconfirm --needed -S \
     stow \
     wget2 \
     curl \
