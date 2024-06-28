@@ -424,7 +424,11 @@ arch-chroot -u "$username" /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
                                            makepkg -si --noconfirm"
 
 
-# [⚠️] Install user packages
+# [⚠️] Remove passwordless sudo permission from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
+
+
+# Install user packages
 HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --noconfirm --needed -S \
     stow \
     wget2 \
@@ -476,7 +480,7 @@ arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
 #EOF
 
 
-# [⚠️] Detect GPU(s) and install video driver(s)
+# Detect GPU(s) and install video driver(s)
 gpu=$(lspci | grep "VGA compatible controller")
 if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
@@ -523,10 +527,6 @@ EOF
     
     arch-chroot /mnt mkinitcpio -P
 fi
-
-
-# [⚠️] Remove passwordless sudo permission from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Configure Zsh
