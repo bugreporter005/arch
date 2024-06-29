@@ -424,11 +424,7 @@ arch-chroot -u "$username" /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
                                            makepkg -si --noconfirm"
 
 
-# [⚠️] Remove passwordless sudo permission from the new user
-sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
-
-
-# Install user packages
+# [⚠️] Install user packages
 HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --noconfirm --needed -S \
     stow \
     wget2 \
@@ -471,6 +467,10 @@ arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
                                                                 breeze-plymouth \
                                                                 discover \
                                                                 oxygen oxygen-sounds
+
+
+# [⚠️] Remove passwordless sudo permission from the new user
+sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 
 # Disable KWallet
