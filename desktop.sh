@@ -419,9 +419,9 @@ echo "$username ALL=(ALL:ALL) NOPASSWD: ALL" >> /mnt/etc/sudoers
 
 # [⚠️] Install Paru
 arch-chroot -u "$username" /mnt /bin/zsh -c "mkdir /tmp/paru.$$ && \
-                                           cd /tmp/paru.$$ && \
-                                           curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
-                                           makepkg -si --noconfirm"
+                                             cd /tmp/paru.$$ && \
+                                             curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=paru-bin" -o PKGBUILD && \
+                                             makepkg -si --noconfirm"
 
 
 # [⚠️] Install user packages
