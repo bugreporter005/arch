@@ -482,19 +482,19 @@ sed -i "/${username} ALL=(ALL:ALL) NOPASSWD: ALL/d" /mnt/etc/sudoers
 
 # Detect GPU(s) and install video driver(s)
 gpu=$(lspci | grep "VGA compatible controller")
-if [ grep "Intel" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+if [ grep "Intel" <<< $gpu && grep -E "NVIDIA|GeForce" <<< $gpu ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
-elif [ grep -E "AMD|Radeon" <<< ${gpu} && grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+elif [ grep -E "AMD|Radeon" <<< $gpu && grep -E "NVIDIA|GeForce" <<< $gpu ]; then
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils nvidia-lts nvidia-settings nvidia-smi"
-elif [ grep "Intel" <<< ${gpu} ]; then
+elif [ grep "Intel" <<< $gpu ]; then
     gpu_driver="mesa lib32-mesa vulkan-intel lib32-vulkan-intel libva-intel-driver libva-utils"
     sed -i '/^MODULES=/ s/)/ i915&/' /mnt/etc/mkinitcpio.conf
     sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
-elif [ grep -E "AMD|Radeon" <<< ${gpu} ]; then
+elif [ grep -E "AMD|Radeon" <<< $gpu ]; then
     gpu_driver="mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver libva-utils"
     sed -i '/^MODULES=/ s/)/ amdgpu&/' /mnt/etc/mkinitcpio.conf
     sed -i '/^HOOKS=/ s/)/ kms&/' /mnt/etc/mkinitcpio.conf
-elif [ grep -E "NVIDIA|GeForce" <<< ${gpu} ]; then
+elif [ grep -E "NVIDIA|GeForce" <<< $gpu ]; then
     gpu_driver="nvidia-lts nvidia-settings nvidia-smi"
 fi
 
