@@ -270,8 +270,8 @@ echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
 echo $hostname > /mnt/etc/hostname
 
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
-
 arch-chroot /mnt systemctl enable systemd-resolved.service
+
 arch-chroot /mnt systemctl enable NetworkManager.service
 
 
