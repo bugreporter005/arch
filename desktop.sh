@@ -97,10 +97,6 @@ if [ ! ping -c 1 archlinux.org > /dev/null ]; then
 fi
 
 
-# Update the system clock
-timedatectl set-ntp true
-
-
 # Partition
 sgdisk --zap-all $drive
 
@@ -252,6 +248,7 @@ sed -i 's/subvolid=.*,//' /mnt/etc/fstab
 # Set timezone based on IP address
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 arch-chroot /mnt hwclock --systohc
+arch-chroot /mnt systemctl enable systemd-timesyncd.service
 
 
 # Locales
