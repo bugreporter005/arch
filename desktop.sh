@@ -376,24 +376,20 @@ arch-chroot /mnt systemctl enable apparmor.service
 
 # Configure ZRAM if the host machine has less than 64GB RAM
 if [ $RAM_SIZE -l 64 ]; then
-    cat > /mnt/etc/systemd/zram-generator.conf << EOF
-[zram0]
-zram-size = ram
-compression-algorithm = zstd
-EOF
-
+    echo "[zram0]"                      >> /mnt/etc/systemd/zram-generator.conf
+    echo "zram-size = ram"              >> /mnt/etc/systemd/zram-generator.conf
+    echo "compression-algorithm = zstd" >> /mnt/etc/systemd/zram-generator.conf
+    
     arch-chroot /mnt systemctl daemon-reload
     arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
 
     sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ zswap.enabled=0"/' /mnt/etc/default/grub
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
-    cat > /etc/sysctl.d/99-vm-zram-parameters.conf << EOF
-vm.swappiness = 180
-vm.watermark_boost_factor = 0
-vm.watermark_scale_factor = 125
-vm.page-cluster = 0
-EOF
+    echo "vm.swappiness = 18"              >> /etc/sysctl.d/99-vm-zram-parameters.conf
+    echo "vm.watermark_boost_factor = 0"   >> /etc/sysctl.d/99-vm-zram-parameters.conf
+    echo "vm.watermark_scale_factor = 125" >> /etc/sysctl.d/99-vm-zram-parameters.conf
+    echo "vm.page-cluster = 0"             >> /etc/sysctl.d/99-vm-zram-parameters.conf
 fi
 
 
