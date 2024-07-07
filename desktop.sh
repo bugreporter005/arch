@@ -378,12 +378,15 @@ arch-chroot /mnt systemctl enable apparmor.service
 if [ $RAM_SIZE -l 64 ]; then
     cat > /mnt/etc/systemd/zram-generator.conf << EOF
 [zram0]
-zram-size = ram * 2
+zram-size = ram
 compression-algorithm = zstd
 EOF
 
     arch-chroot /mnt systemctl daemon-reload
     arch-chroot /mnt systemctl start systemd-zram-setup@zram0.service
+
+    sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ zswap.enabled=0"/' /mnt/etc/default/grub
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 
