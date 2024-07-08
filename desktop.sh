@@ -144,7 +144,7 @@ btrfs subvolume create /mnt/@tmp
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@swap
 btrfs subvolume create /mnt/@snapshots
-btrfs subvolume create /mnt/@home_snapshots
+btrfs subvolume create /mnt/@home-snapshots
 btrfs subvolume create /mnt/@cryptkey
 
 
@@ -166,7 +166,7 @@ mount -o noatime,subvol=@home               LABEL=root /mnt/home
 mount -o noatime,subvol=@opt                LABEL=root /mnt/opt
 mount -o noatime,subvol=@srv                LABEL=root /mnt/srv
 mount -o noatime,subvol=@snapshots          LABEL=root /mnt/.snapshots
-mount -o noatime,subvol=@home_snapshots     LABEL=root /mnt/home/.snapshots
+mount -o noatime,subvol=@home-snapshots     LABEL=root /mnt/home/.snapshots
 mount -o noatime,nodatacow,subvol=@tmp      LABEL=root /mnt/tmp
 mount -o noatime,nodatacow,subvol=@var      LABEL=root /mnt/var
 mount -o noatime,nodatacow,subvol=@swap     LABEL=root /mnt/swap
