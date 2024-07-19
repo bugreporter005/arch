@@ -445,7 +445,7 @@ HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --noconfirm --need
     tlp tlp-rdw \
     firejail \
     pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
-    ttf-jetbrains-mono-nerd \
+    ttf-jetbrains-mono-nerd otf-commit-mono-nerd \
     emacs-wayland \
     wl-clipboard \
     zip unzip \    
