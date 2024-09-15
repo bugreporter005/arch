@@ -426,40 +426,7 @@ arch-chroot -u "$username" /mnt bash -c "mkdir /tmp/paru.$$ && \
 
 
 # [⚠️] Install user packages
-HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --noconfirm --needed -S \
-    stow \
-    wget2 \
-    curl \
-    man-db man-pages \
-    htop \
-    fastfetch \
-    fzf \
-    git \
-    lsd \
-    bat \
-    exfatprogs \
-    openssh \
-    btrfs-assistant \
-    tlp tlp-rdw \
-    firejail \
-    pipewire pipewire-pulse pipewire-alsa pipewire-jack \ 
-    ttf-jetbrains-mono-nerd otf-commit-mono-nerd \
-    emacs-wayland \
-    wl-clipboard \
-    zip unzip \    
-    docker \
-    flatpak flatseal \
-    firefox librewolf-bin ungoogled-chromium-bin \
-    freetube-bin \
-    foliate \
-    libreoffice-fresh ttf-ms-win11-auto \
-    anki-bin noto-fonts-emoji \
-    ffmpeg \
-    obs-studio \
-    schildichat-desktop-bin \
-    thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk \
-    qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils #\
-    #gnome extension-manager
+HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --needed -S stow wget2 curl man-db man-pages htop fastfetch fzf git lsd bat exfatprogs openssh btrfs-assistant tlp tlp-rdw firejail pipewire pipewire-pulse pipewire-alsa pipewire-jack ttf-jetbrains-mono-nerd otf-commit-mono-nerd emacs-wayland wl-clipboard zip unzip docker flatpak flatseal firefox librewolf-bin ungoogled-chromium-bin freetube-bin foliate libreoffice-fresh ttf-ms-win11-auto anki-bin noto-fonts-emoji ffmpeg obs-studio schildichat-desktop-bin thunderbird thunderbird-i18n-en-us thunderbird-i18n-ru thunderbird-i18n-kk qemu-full virt-manager virt-viewer dmidecode libguestfs nftables dnsmasq openbsd-netcat vde2 bridge-utils #gnome extension-manager
 
 #arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
 
