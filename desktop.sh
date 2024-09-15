@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------------------------------------
 
 
-console_font="ter-v18n"
+console_font="ter-v32n"
 
 wifi_interface="wlan0"
 wifi_ssid=""
@@ -160,7 +160,8 @@ umount /mnt
 
 mount -o noatime,compress=zstd,subvol=@     LABEL=root /mnt
 
-mkdir -p /mnt/{efi,home/.snapshots,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
+mkdir -p /mnt/{efi,home,opt,srv,tmp,var,swap,.snapshots,.cryptkey}
+mkdie -p /mnt/home/.snapshots
 
 mount -o noatime,subvol=@home               LABEL=root /mnt/home
 mount -o noatime,subvol=@opt                LABEL=root /mnt/opt
@@ -253,14 +254,11 @@ arch-chroot /mnt systemctl enable systemd-timesyncd.service
 
 # Locales
 arch-chroot /mnt sed -i "/en_US.UTF-8/s/^#//" /etc/locale.gen
-arch-chroot /mnt sed -i "/ru_RU.UTF-8/s/^#//" /etc/locale.gen
-arch-chroot /mnt sed -i "/kk_KZ.UTF-8/s/^#//" /etc/locale.gen
 
 arch-chroot /mnt locale-gen
 
 cat > /mnt/etc/locale.conf << EOF
 LANG=en_US.UTF-8
-LC_MEASUREMENT=en_GB.UTF-8
 EOF
 
 echo "FONT=${console_font}" > /mnt/etc/vconsole.conf
