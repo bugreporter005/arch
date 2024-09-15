@@ -430,11 +430,9 @@ HOME="/home/${username}" arch-chroot -u "$username" /mnt paru --needed -S stow w
 
 #arch-chroot /mnt flatpak install -y flathub us.zoom.Zoom
 
-arch-chroot /mnt pacman --noconfirm --needed -S plasma --ignore kuserfeedback \
-                                                                kwallet kwallet-pam ksshaskpass \
-                                                                breeze-plymouth \
-                                                                discover \
-                                                                oxygen oxygen-sounds
+arch-chroot /mnt pacman --noconfirm --needed -S plasma konsole --ignore breeze-plymouth \
+                                                                        discover \
+                                                                        oxygen oxygen-sounds
 
 
 # [⚠️] Remove passwordless sudo permission from the new user
